@@ -6,6 +6,9 @@ import { ConfigModule } from '@nestjs/config';
 import { FileModule } from './api/file/file.module';
 import { BackupModule } from './api/backup/backup.module';
 import { CsvModule } from './api/csv/csv.module';
+import { BrowserModule } from './api/browser/browser.module';
+import { PostModule } from './api/post/post.module';
+import { CommunityModule } from './api/community/community.module';
 import configuration from './config/configuration';
 
 @Module({
@@ -17,7 +20,10 @@ import configuration from './config/configuration';
     DwarfModule,
     FileModule,
     BackupModule,
-    CsvModule
+    CsvModule,
+    BrowserModule,
+    PostModule,
+    CommunityModule
   ],
   controllers: [AppController],
   providers: [AppService],

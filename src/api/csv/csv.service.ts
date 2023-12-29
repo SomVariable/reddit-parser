@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import * as fs from 'fs';
 import * as csv from 'csv-parser';
 import { CSV_FILE_PATH } from './constants/csv.constants';
@@ -9,10 +9,10 @@ export class CsvService {
   async parseCsvFile() {
     try {
       const fileStream = fs.createReadStream(CSV_FILE_PATH);
-
       const converterStream = iconv.decodeStream('win1251');
       return new Promise((resolve, reject) => {
-        fileStream.pipe(converterStream)
+        fileStream
+          .pipe(converterStream)
           .pipe(csv({ separator: ';' }))
           .on('data', (data) => resolve(data))
           .on('end', () => {
@@ -22,7 +22,7 @@ export class CsvService {
           .on('error', (error) => reject(error));
       });
     } catch (error) {
-      console.log(error);
+      throw new InternalServerErrorException(error);
     }
   }
 }

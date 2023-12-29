@@ -4,9 +4,4 @@ import { CsvService } from './csv.service';
 @Controller('csv')
 export class CsvController {
   constructor(private readonly csvService: CsvService) {}
-
-  @Get()
-  async test(){
-    return await this.csvService.parseCsvFile()
-  }
 }

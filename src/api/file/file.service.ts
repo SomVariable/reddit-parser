@@ -1,10 +1,11 @@
 import { BackupService } from './../backup/backup.service';
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { CreateFileDto } from './dto/create-file.dto';
 import { UpdateFileDto } from './dto/update-file.dto';
 import * as fs from 'fs/promises';
 import { FILE_NAME } from './constants/file.constants';
 import * as iconv from 'iconv-lite';
+import { LoginDwarfDto } from '../dwarf/dto/login-dwarf.dto';
 
 @Injectable()
 export class FileService {
@@ -12,6 +13,36 @@ export class FileService {
 
   create(createFileDto: CreateFileDto) {
     return 'This action adds a new file';
+  }
+  
+  
+
+  private async addFileInfo(data: any, fileName: keyof typeof FILE_NAME) {
+    const usersDataJson = await fs.readFile(
+      `payload/${FILE_NAME[fileName]}`,
+      'utf8',
+    );
+
+    await this.backupService.backupAccounts(usersDataJson, FILE_NAME.ACCOUNTS);
+    const userData = await JSON.parse(usersDataJson);
+    console.log('fileName ', fileName)
+    switch (fileName) {
+      case 'ACCOUNTS':
+      case 'LOGGED_IN_ACCOUNTS':
+      case 'FROZEN_ACCOUNTS': {
+        const dwarfsWithNewOne: LoginDwarfDto[] = [...userData.dwarfs, data];
+        const dwarfsWithNewOneJson = JSON.stringify({ dwarfs: dwarfsWithNewOne }, null, 2);
+        await fs.writeFile(`payload/${FILE_NAME[fileName]}`, dwarfsWithNewOneJson);
+        return dwarfsWithNewOne;
+      }
+      case 'PROXY': {
+        return null
+      
+      }
+      default: {
+        throw new BadRequestException('there is no such file in the FILE_NAME');
+      }
+    }
   }
 
   async getUserData() {
@@ -23,26 +54,22 @@ export class FileService {
     return JSON.parse(usersData);
   }
 
-  async setNewUser(newUser) {
-    const usersDataJson = await fs.readFile(
-      `payload/${FILE_NAME.ACCOUNTS}`,
-      'utf8',
-    );
-    console.log(usersDataJson);
-    await this.backupService.backupAccounts(usersDataJson, FILE_NAME.ACCOUNTS);
-    const userData = await JSON.parse(usersDataJson);
-    const userDataWithNewUser = [...userData.dwarfs, newUser];
-    const userDataWithNewUserJson = JSON.stringify(
-      { dwarfs: userDataWithNewUser },
-      null,
-      2,
+  async addNewUser(newUser: LoginDwarfDto) {
+    const dwarfsWithNewUser = await this.addFileInfo(
+      newUser, 
+      'ACCOUNTS'
     );
 
-    await fs.writeFile(
-      `payload/${FILE_NAME.ACCOUNTS}`,
-      userDataWithNewUserJson,
+    return dwarfsWithNewUser;
+  }
+
+  async addLoggedInUser(newUser: LoginDwarfDto) {
+    const dwarfsWithNewUser = await this.addFileInfo(
+      newUser,
+      'LOGGED_IN_ACCOUNTS',
     );
-    return userDataWithNewUser;
+
+    return dwarfsWithNewUser;
   }
 
   async test() {

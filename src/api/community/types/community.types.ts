@@ -1,0 +1,5 @@
+export enum COMMUNITY_TYPE{
+    PRIVATE = 'PRIVATE',
+    PUBLIC = 'PUBLIC',
+    RESTRICTED = 'RESTRICTED'
+}
