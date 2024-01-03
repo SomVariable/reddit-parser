@@ -2,7 +2,7 @@ import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger"
 import { IsNotEmpty, IsOptional, IsString, Length } from "class-validator"
 
 
-export class LoginDwarfDto {
+export class LoginUserDto {
     @ApiProperty()
     @IsNotEmpty()
     @IsString()

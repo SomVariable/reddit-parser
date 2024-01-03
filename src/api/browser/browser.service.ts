@@ -19,7 +19,7 @@ import { EMPTY_PROXY } from '../file/constants/file.constants';
 import { InjectQueue } from '@nestjs/bull';
 import { Queue } from 'bull';
 import { IBullType } from '../kv-store/kv-types/kv-store.type';
-import { waitForTimeout } from '../dwarf/actions/dwarf.actions';
+import { waitForTimeout } from '../user/actions/user.actions';
 @Injectable()
 export class BrowserService {
   browsers: { [key: string]: Browser } = {};

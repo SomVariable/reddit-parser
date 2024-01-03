@@ -1,4 +1,4 @@
-export enum DwarfActionWeight {
+export enum UserActionWeight {
     highFrequency = 20,
     mediumFrequency = 7,
     lowFrequency = 1
@@ -8,7 +8,7 @@ export enum DWARF_BAD_REQUEST_EXCEPTION {
     CREATE_EXISTING_ACTIVITY = "there is already exist activity for this user",
     MISSING_ACTIVITY = "there no activity for this user",
     BULL_MISSING_DATA_LOGIN = "there is problem with bull data for login",
-    BULL_MISSING_LOGGED_IN_USER = ""
+    BULL_MISSING_LOGGED_IN_USER = "",
 }
 
 export enum DWARF_SELECTORS {
@@ -28,13 +28,13 @@ export enum USER_BULL {
     EMIT_ACTIVITY = 'emit-activity'
 }
 
-export type DwarfAction = {
+export type UserAction = {
     fn: (...args: any) => void,
     weight: number
 }
 
-export interface IDwarfActions {
-    scrollByWheel: DwarfAction
-    doNothing: DwarfAction
-    goToTheCommunity: DwarfAction
+export interface IUserActions {
+    scrollByWheel: UserAction
+    doNothing: UserAction
+    goToTheCommunity: UserAction
 }

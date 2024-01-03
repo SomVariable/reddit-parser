@@ -1,13 +1,15 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { BadRequestException, Inject, Injectable } from '@nestjs/common';
 import { CreateCommunityDto } from './dto/create-community.dto';
 import { BrowserService } from '../browser/browser.service';
 import { COMMUNITY_SELECTORS } from './constants/community.constants';
 import { COMMUNITY_TYPE } from './types/community.types';
+import { waitForTimeout } from '../user/actions/user.actions';
+import { Page } from 'puppeteer';
 
 @Injectable()
 export class CommunityService {
   constructor(private readonly browserService: BrowserService) {}
-  
+
   async createCommunity({
     title,
     email,
@@ -38,27 +40,46 @@ export class CommunityService {
     );
     // start createCommunityPopUp actions
     await page.type(COMMUNITY_SELECTORS.CREATION_POPUP_TITLE_INPUT, title);
-    switch(type){
+    await this._checkErrorMessage(page)
+    switch (type) {
       case COMMUNITY_TYPE.PRIVATE:
-        await page.click(COMMUNITY_SELECTORS.CREATION_POPUP_TYPE_OPTION_PRIVATE);
+        await page.click(
+          COMMUNITY_SELECTORS.CREATION_POPUP_TYPE_OPTION_PRIVATE,
+        );
         break;
       case COMMUNITY_TYPE.PUBLIC:
         await page.click(COMMUNITY_SELECTORS.CREATION_POPUP_TYPE_OPTION_PUBLIC);
         break;
       case COMMUNITY_TYPE.RESTRICTED:
-        await page.click(COMMUNITY_SELECTORS.CREATION_POPUP_TYPE_OPTION_RESTRICTED);
+        await page.click(
+          COMMUNITY_SELECTORS.CREATION_POPUP_TYPE_OPTION_RESTRICTED,
+        );
         break;
     }
     if (isNSFM)
       await page.click(COMMUNITY_SELECTORS.CREATION_POPUP_OPTION_ADULT_CONTENT);
 
-
     await page.click(COMMUNITY_SELECTORS.CREATION_POPUP_CREATE_BUTTON);
-
+    await this._checkErrorMessage(page)
     // cancel default post creation
-    await page.waitForSelector(COMMUNITY_SELECTORS.POST_CREATE_POPUP_NOT_NOW_BUTTON)
+    await page.waitForSelector(
+      COMMUNITY_SELECTORS.POST_CREATE_POPUP_NOT_NOW_BUTTON,
+    );
 
-    await page.click(COMMUNITY_SELECTORS.POST_CREATE_POPUP_NOT_NOW_BUTTON)
-
+    await page.click(COMMUNITY_SELECTORS.POST_CREATE_POPUP_NOT_NOW_BUTTON);
   }
+
+  private async _checkErrorMessage(page: Page) {
+    await waitForTimeout(500)
+    const errorMessage = await page.$eval(
+      COMMUNITY_SELECTORS.CREATION_ERROR_MESSAGE,
+      (el) => el.textContent
+    );
+
+    if(errorMessage) {
+      throw new BadRequestException(errorMessage)
+    }
+
+    return true
+  } 
 }

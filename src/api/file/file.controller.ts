@@ -18,18 +18,18 @@ import { BrowserSessionDto } from '../browser/dto/browser-session.dto';
 export class FileController {
   constructor(private readonly fileService: FileService) {}
 
-  @Post('dwarf')
-  async addNewDwarf(@Body() dto: AddUserToFileDto ){
+  @Post('user')
+  async addNewUser(@Body() dto: AddUserToFileDto ){
     return await this.fileService.addNewUser(dto)
   }
 
-  @Post('dwarf/logged-in')
-  async loggedInDwarf(@Body() dto: AddUserToFileDto){
+  @Post('user/logged-in')
+  async loggedInUser(@Body() dto: AddUserToFileDto){
     return await this.fileService.addLoggedInUser(dto)
   }
 
-  @Post('dwarf/blocked')
-  async blockedDwarf(@Body() dto: AddUserToFileDto){
+  @Post('user/blocked')
+  async blockedUser(@Body() dto: AddUserToFileDto){
     return await this.fileService.addBlockedUser(dto)
   }
 
@@ -46,7 +46,7 @@ export class FileController {
   }
 
 
-  @Get('dwarfs')
+  @Get('users')
   async getData() {
     return await this.fileService.getUsersData()
   }

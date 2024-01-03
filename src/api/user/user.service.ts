@@ -1,5 +1,5 @@
-import { DwarfCommonActionsService } from './actions/dwarf-common.actions.service';
-import { BrowserService } from './../browser/browser.service';
+import { UserCommonActionsService } from './actions/user-common.actions.service';
+import { BrowserService } from '../browser/browser.service';
 import {
   BadRequestException,
   Injectable,
@@ -11,30 +11,30 @@ import puppeteer, { Page } from 'puppeteer';
 import {
   ACTIVITY_INTERVAL,
   VIEW_PORT_SETTING,
-} from './constants/dwarf.constants';
-import { Dwarf } from '@prisma/client';
+} from './constants/user.constants';
+import { User } from '@prisma/client';
 import { REDDIT_SRC } from 'src/common/constants/app.constants';
-import { LoginDwarfDto } from './dto/login-dwarf.dto';
+import { LoginUserDto } from './dto/login-user.dto';
 import {
   DWARF_BAD_REQUEST_EXCEPTION,
   DWARF_SELECTORS,
   USER_BULL,
-} from './types/dwarf.types';
-import { waitForTimeout } from './actions/dwarf.actions';
+} from './types/user.types';
+import { waitForTimeout } from './actions/user.actions';
 import { BROWSER_BAD_REQUEST_ERRORS } from '../browser/constants/browser.constants';
 import { Queue } from 'bull';
 import { InjectQueue } from '@nestjs/bull';
 import { BrowserSessionDto } from '../browser/dto/browser-session.dto';
 
 @Injectable()
-export class DwarfService {
+export class UserService {
   logger = new Logger();
   intervals: { [key: string]: NodeJS.Timer } = {};
   loggedInUsers: string[] = [];
 
   constructor(
     private readonly browserService: BrowserService,
-    private readonly dwarfCommonActionsService: DwarfCommonActionsService,
+    private readonly userCommonActionsService: UserCommonActionsService,
     @InjectQueue(USER_BULL.NAME) private userQueue: Queue,
   ) {}
 
@@ -46,7 +46,7 @@ export class DwarfService {
   }
 
   async bullEmitActivity(email: string) {
-    const actions = this.dwarfCommonActionsService.getActions();
+    const actions = this.userCommonActionsService.getActions();
     if (this.intervals[email]) {
       throw new BadRequestException(
         DWARF_BAD_REQUEST_EXCEPTION.CREATE_EXISTING_ACTIVITY,
@@ -84,14 +84,14 @@ export class DwarfService {
     clearInterval(this.intervals[email]);
   }
 
-  async loginDwarf(user: LoginDwarfDto) {
+  async loginUser(user: LoginUserDto) {
     const result = await this.userQueue.add(USER_BULL.LOGIN, { ...user });
     const { id, data, name } = result;
 
     return { id, data, name };
   }
 
-  async queueLoginDwarf(user: LoginDwarfDto) {
+  async queueLoginUser(user: LoginUserDto) {
     try {
       const page = this.browserService.getPage({
         email: user.email,
@@ -155,7 +155,7 @@ export class DwarfService {
 
   private _selectAction() {
     const possibleActionsKeysWithWeight = [];
-    const actions = this.dwarfCommonActionsService.getActions();
+    const actions = this.userCommonActionsService.getActions();
 
     for (const key in actions) {
       if (actions.hasOwnProperty(key)) {
@@ -171,7 +171,7 @@ export class DwarfService {
   }
 }
 
-// async signUpDwarf() {
+// async signUpUser() {
 //   try {
 //     const browser = await puppeteer.launch({ headless: false });
 //     const page = await browser.newPage();

@@ -14,6 +14,7 @@ export enum COMMUNITY_SELECTORS {
     CREATION_POPUP_TYPE_OPTION_RESTRICTED = "div._1oREjd5ToMFah-VfX5Zt1z > div > div:nth-child(3) > svg",
     CREATION_POPUP_OPTION_ADULT_CONTENT = "div._2m493sVo9iDo-3EBxQrAJc > div.XZK-LTFT5CgGo9MvPQQsy._2BPowd18EKTnfZFrj5kY3G > svg",
     CREATION_POPUP_TITLE_INPUT = "div._1oREjd5ToMFah-VfX5Zt1z > input",
+    CREATION_ERROR_MESSAGE = "#SHORTCUT_FOCUSABLE_DIV > div:nth-child(7) > div > div > div > div > div > div > div._2hGJP-9xfXBXd0wqhBLHhY._2dXAoHGf_uRg0D6ofrpJbr > span._3h_9YwxjuOr77VhScPrjCI",
     CREATION_POPUP_CREATE_BUTTON = "button._2shIfL3K7ivaojvZFjvI-Z._2iuoyPiKHN3kfOoeIQalDT._10BQ7pjWbeYP63SAPNS8Ts.HNozj_dKjQZ59ZsfEegz8",
     POST_CREATE_POPUP_NOT_NOW_BUTTON = "#SHORTCUT_FOCUSABLE_DIV > div:nth-child(7) > div > div > section > footer > button",
     PAGE_MODERATOR_ADD_DESCRIPTION = "div._2qi_L6gKnhyJ0ZxPmwbDFK > div",

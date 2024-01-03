@@ -1,10 +1,10 @@
 import { ApiPropertyOptional, PartialType, PickType } from '@nestjs/swagger';
-import { LoginDwarfDto } from "src/api/dwarf/dto/login-dwarf.dto";
+import { LoginUserDto } from "src/api/user/dto/login-user.dto";
 import { AddProxyDto } from "./add-proxy.dto";
 import { IsOptional, IsString } from 'class-validator';
 import { EMPTY_PROXY } from '../constants/file.constants';
 
-export class AddUserToFileDto extends PickType(LoginDwarfDto, ['email', 'login', 'password']){
+export class AddUserToFileDto extends PickType(LoginUserDto, ['email', 'login', 'password']){
     @ApiPropertyOptional()
     @IsOptional()
     @IsString()

@@ -59,33 +59,33 @@ export class FileService {
   }
 
   async addNewUser(newUser: AddUserToFileDto) {
-    const dwarfsWithNewUser = await this._addFileInfo(newUser, 'ACCOUNTS');
+    const usersWithNewUser = await this._addFileInfo(newUser, 'ACCOUNTS');
 
-    return dwarfsWithNewUser;
+    return usersWithNewUser;
   }
 
   async addLoggedInUser(newUser: AddUserToFileDto) {
-    const dwarfsWithNewUser = await this._addFileInfo(
+    const usersWithNewUser = await this._addFileInfo(
       newUser,
       'LOGGED_IN_ACCOUNTS',
     );
 
-    return dwarfsWithNewUser;
+    return usersWithNewUser;
   }
 
   async addBlockedUser(newUser: AddUserToFileDto) {
-    const dwarfsWithNewUser = await this._addFileInfo(
+    const usersWithNewUser = await this._addFileInfo(
       newUser,
       'FROZEN_ACCOUNTS',
     );
 
-    return dwarfsWithNewUser;
+    return usersWithNewUser;
   }
 
   async addProxyAddress({ proxy }: AddProxyDto) {
-    const dwarfsWithNewUser = await this._addFileInfo(proxy, 'PROXY');
+    const usersWithNewUser = await this._addFileInfo(proxy, 'PROXY');
 
-    return dwarfsWithNewUser;
+    return usersWithNewUser;
   }
 
   parseProxy(proxy: string) {

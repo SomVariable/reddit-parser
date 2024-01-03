@@ -1,4 +1,4 @@
-import { FileService } from './../file/file.service';
+import { FileService } from '../file/file.service';
 import {
   Controller,
   Get,
@@ -10,45 +10,45 @@ import {
   UseGuards,
   Res,
 } from '@nestjs/common';
-import { DwarfService } from './dwarf.service';
-import { CreateDwarfDto } from './dto/create-puppeteer.dto';
-import { UpdateDwarfDto } from './dto/update-puppeteer.dto';
+import { UserService } from './user.service';
+import { CreateUserDto } from './dto/create-puppeteer.dto';
+import { UpdateUserDto } from './dto/update-puppeteer.dto';
 import { ApiTags } from '@nestjs/swagger';
-import { LoginDwarfDto } from './dto/login-dwarf.dto';
+import { LoginUserDto } from './dto/login-user.dto';
 import { BrowserSessionDto } from 'src/api/browser/dto/browser-session.dto';
 import { BrowserGuard } from '../browser/guards/browser.guard';
 import { PageGuard } from '../browser/guards/page.guard';
 import { Response } from 'express';
 
-@ApiTags('dwarf')
-@Controller('dwarf')
-export class DwarfController {
+@ApiTags('user')
+@Controller('user')
+export class UserController {
   constructor(
-    private readonly dwarfService: DwarfService,
+    private readonly userService: UserService,
     private readonly fileService: FileService,
   ) {}
 
-  @Get('dwarfs')
+  @Get('users')
   @UseGuards(BrowserGuard, PageGuard)
-  async getDwarfs() {
+  async getUsers() {
     return await this.fileService.getUsersData();
   }
 
-  @Post('login-dwarf')
+  @Post('login-user')
   //@UseGuards(BrowserGuard, PageGuard)
-  async loginDwarf(@Body() data: LoginDwarfDto) {
-    return await this.dwarfService.loginDwarf(data);
+  async loginUser(@Body() data: LoginUserDto) {
+    return await this.userService.loginUser(data);
   }
 
   @Post('emit-activity')
   @UseGuards(BrowserGuard, PageGuard)
   async emitActivity(@Body() data: BrowserSessionDto) {
-    await this.dwarfService.emitActivity(data.email);
+    await this.userService.emitActivity(data.email);
   }
 
   @Post('stop-activity')
   @UseGuards(BrowserGuard, PageGuard)
   async stopActivity(@Body() data: BrowserSessionDto) {
-    await this.dwarfService.stopActivity(data.email);
+    await this.userService.stopActivity(data.email);
   }
 }

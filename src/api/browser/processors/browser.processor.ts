@@ -9,7 +9,7 @@ import { Inject, Logger } from '@nestjs/common';
 import { Job } from 'bull';
 import { BrowserService } from '../browser.service';
 import { BROWSER_BULL_MESSAGES, BULL } from '../constants/browser.constants';
-import { waitForTimeout } from 'src/api/dwarf/actions/dwarf.actions';
+import { waitForTimeout } from 'src/api/user/actions/user.actions';
 import { BrowserSessionDto } from '../dto/browser-session.dto';
 
 @Processor(BULL.NAME)

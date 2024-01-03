@@ -5,28 +5,28 @@ import {
 } from '@nestjs/common';
 import  { Page } from 'puppeteer';
 import { BrowserService } from 'src/api/browser/browser.service';
-import { DWARF_SELECTORS, DwarfAction, DwarfActionWeight, IDwarfActions } from '../types/dwarf.types';
+import { DWARF_SELECTORS, UserAction, UserActionWeight, IUserActions } from '../types/user.types';
 
 @Injectable()
-export class DwarfCommonActionsService {
+export class UserCommonActionsService {
   logger = new Logger();
   intervals: { [key: string]: NodeJS.Timer } = {};
 
   constructor(private readonly browserService: BrowserService) {}
 
-  getActions(): IDwarfActions {
+  getActions(): IUserActions {
     return {
       scrollByWheel: {
         fn: this.scrollByWheel,
-        weight: DwarfActionWeight.highFrequency,
+        weight: UserActionWeight.highFrequency,
       },
       doNothing: {
         fn: this.doNothing,
-        weight: DwarfActionWeight.mediumFrequency
+        weight: UserActionWeight.mediumFrequency
       },
       goToTheCommunity: {
         fn: this.goToTheCommunity,
-        weight: DwarfActionWeight.lowFrequency
+        weight: UserActionWeight.lowFrequency
       }
     }
   }

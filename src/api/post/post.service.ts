@@ -16,7 +16,7 @@ import {
 import { Page } from 'puppeteer';
 import { generateOpinionSelector } from './helpers/post.helpers';
 import { BROWSER_BAD_REQUEST_ERRORS } from '../browser/constants/browser.constants';
-import { waitForTimeout } from '../dwarf/actions/dwarf.actions';
+import { waitForTimeout } from '../user/actions/user.actions';
 import * as path from 'path';
 import * as fs from 'fs';
 

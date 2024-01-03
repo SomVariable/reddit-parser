@@ -11,6 +11,7 @@ export enum BROWSER_BAD_REQUEST_ERRORS {
 
 export enum BROWSER_SELECTORS {
   HOME_LINK = 'div._3dnbqz69WJTFCss8wl7Wlk > a',
+  BUN_HEADER = "#AppRouter-main-content > div > div:nth-child(1) > div > div > h3"
 }
 
 export enum BROWSER_BULL_MESSAGES {
@@ -23,3 +24,5 @@ export enum BULL {
   START_BROWSER_PROCESS = 'start-browser',
   START_PAGE_PROCESS = 'start-page',
 }
+
+export const BUN_TEMPLATE_MESSAGE = ""

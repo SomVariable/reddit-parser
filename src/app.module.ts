@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { DwarfModule } from './api/dwarf/dwarf.module';
+import { UserModule } from './api/user/user.module';
 import { ConfigModule } from '@nestjs/config';
 import { FileModule } from './api/file/file.module';
 import { BackupModule } from './api/backup/backup.module';
@@ -18,7 +18,7 @@ import { KvStoreModule } from './api/kv-store/kv-store.module';
       load: [configuration],
       isGlobal: true
     }),
-    DwarfModule,
+    UserModule,
     FileModule,
     BackupModule,
     CsvModule,
