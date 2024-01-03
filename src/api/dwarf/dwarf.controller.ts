@@ -8,6 +8,7 @@ import {
   Param,
   Delete,
   UseGuards,
+  Res,
 } from '@nestjs/common';
 import { DwarfService } from './dwarf.service';
 import { CreateDwarfDto } from './dto/create-puppeteer.dto';
@@ -17,6 +18,7 @@ import { LoginDwarfDto } from './dto/login-dwarf.dto';
 import { BrowserSessionDto } from 'src/api/browser/dto/browser-session.dto';
 import { BrowserGuard } from '../browser/guards/browser.guard';
 import { PageGuard } from '../browser/guards/page.guard';
+import { Response } from 'express';
 
 @ApiTags('dwarf')
 @Controller('dwarf')
@@ -29,11 +31,11 @@ export class DwarfController {
   @Get('dwarfs')
   @UseGuards(BrowserGuard, PageGuard)
   async getDwarfs() {
-    return await this.fileService.getUserData();
+    return await this.fileService.getUsersData();
   }
 
   @Post('login-dwarf')
-  @UseGuards(BrowserGuard, PageGuard)
+  //@UseGuards(BrowserGuard, PageGuard)
   async loginDwarf(@Body() data: LoginDwarfDto) {
     return await this.dwarfService.loginDwarf(data);
   }

@@ -7,7 +7,6 @@ export class RedisConfigService implements CacheOptionsFactory{
   constructor(private readonly configService: ConfigService) {}
 
   createCacheOptions(): CacheModuleOptions {
-    console.log('redis config')
     return {
       store: this.configService.get('store'),
       isGlobal: true,

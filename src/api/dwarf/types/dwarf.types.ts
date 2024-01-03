@@ -6,7 +6,9 @@ export enum DwarfActionWeight {
 
 export enum DWARF_BAD_REQUEST_EXCEPTION {
     CREATE_EXISTING_ACTIVITY = "there is already exist activity for this user",
-    MISSING_ACTIVITY = "there no activity for this user"
+    MISSING_ACTIVITY = "there no activity for this user",
+    BULL_MISSING_DATA_LOGIN = "there is problem with bull data for login",
+    BULL_MISSING_LOGGED_IN_USER = ""
 }
 
 export enum DWARF_SELECTORS {
@@ -18,6 +20,12 @@ export enum DWARF_SELECTORS {
     MODER_COMMUNITY = "a[id^='focus-modt5']",
     YOUR_COMMUNITY = "a[id^='focus-subt5']",
     BLACK_WINDOW = "#SHORTCUT_FOCUSABLE_DIV > div:nth-child(7) > div"
+}
+
+export enum USER_BULL {
+    NAME = 'user',
+    LOGIN = 'login-user',
+    EMIT_ACTIVITY = 'emit-activity'
 }
 
 export type DwarfAction = {

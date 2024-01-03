@@ -22,6 +22,7 @@
   "dependencies": {
     "@aws-sdk/client-s3": "^3.465.0",
     "@nestjs-modules/mailer": "^1.9.1",
+    "@nestjs/bull": "^10.0.1",
     "@nestjs/cache-manager": "^2.1.1",
     "@nestjs/common": "^9.0.0",
     "@nestjs/config": "^3.1.1",
@@ -35,6 +36,7 @@
     "@types/nodemailer": "^6.4.14",
     "@types/passport-local": "^1.0.38",
     "bcrypt": "^5.1.1",
+    "bull": "^4.12.0",
     "cache-manager": "^5.3.1",
     "cache-manager-redis-store": "^2.0.0",
     "class-transformer": "^0.5.1",
@@ -50,6 +52,10 @@
     "passport-local": "^1.0.0",
     "puppeteer": "^21.6.0",
     "puppeteer-core": "^21.6.0",
+    "puppeteer-extra": "^3.3.6",
+    "puppeteer-extra-plugin-adblocker": "^2.13.6",
+    "puppeteer-extra-plugin-proxy": "^1.0.2",
+    "puppeteer-extra-plugin-stealth": "^2.11.2",
     "reflect-metadata": "^0.1.13",
     "rxjs": "^7.2.0"
   },

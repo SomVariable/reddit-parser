@@ -10,6 +10,7 @@ import { BrowserModule } from './api/browser/browser.module';
 import { PostModule } from './api/post/post.module';
 import { CommunityModule } from './api/community/community.module';
 import configuration from './config/configuration';
+import { KvStoreModule } from './api/kv-store/kv-store.module';
 
 @Module({
   imports: [
@@ -23,7 +24,8 @@ import configuration from './config/configuration';
     CsvModule,
     BrowserModule,
     PostModule,
-    CommunityModule
+    CommunityModule,
+    KvStoreModule
   ],
   controllers: [AppController],
   providers: [AppService],

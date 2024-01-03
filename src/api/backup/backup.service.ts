@@ -4,11 +4,10 @@ import { FILE_NAME } from '../file/constants/file.constants';
 
 @Injectable()
 export class BackupService {
-  async backupAccounts(json: string, fileName: FILE_NAME) {
+  async backupAccounts(data: string, fileName: FILE_NAME) {
     try {
-        console.log(json)
         const backupFilePath = `backups/${Date.now()}_${fileName}`;
-        await fs.writeFile(backupFilePath, json);
+        await fs.writeFile(backupFilePath, data);
         
     } catch (error) {
         throw new InternalServerErrorException('cannot save backup')

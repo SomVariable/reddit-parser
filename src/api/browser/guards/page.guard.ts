@@ -23,7 +23,6 @@ export class PageGuard implements CanActivate {
       throw new BadRequestException(BROWSER_BAD_REQUEST_ERRORS.MISSING_PAGE);
     }
 
-    console.log('finish page');
     return true;
   }
 }

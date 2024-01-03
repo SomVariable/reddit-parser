@@ -13,12 +13,14 @@ export class BrowserController {
     @Body() dto: BrowserSessionDto
   ) {
     return await this.browserService.startBrowser(dto)
+    //return await this.browserService.runningBrowser(dto)
   }
 
   @Post('open-page')
   async openPage(
     @Body() dto: BrowserSessionDto
   ) {
-    return await this.browserService.openNewPage(dto)
+    return await this.browserService.startPage(dto)
   }
+
 }

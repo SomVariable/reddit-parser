@@ -1,0 +1,4 @@
+valhodisevil@gmail.com;Temporary-Scholar825;LestTryItPlease123!@#;127.0.0.1:80
+somevariable787898@gmail.com;Leading-Subject-4672;LestTryItPlease123!@#;127.0.0.1:80
+new-one@gmail.com;new-cool-login_4;new-cool-password_4;no-proxy
+new-one_2@gmail.com;new-one_2;test;no-proxy

@@ -13,4 +13,6 @@ export interface ILinkSection {
     url: string;
 }
 
-export interface IImagesVideosSection {}
+export interface IImagesVideosSection {
+  file: Express.Multer.File
+}

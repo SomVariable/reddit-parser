@@ -1,12 +1,12 @@
-import { ApiProperty } from "@nestjs/swagger"
-import { IsNotEmpty, IsString, Length } from "class-validator"
+import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger"
+import { IsNotEmpty, IsOptional, IsString, Length } from "class-validator"
 
 
 export class LoginDwarfDto {
     @ApiProperty()
     @IsNotEmpty()
     @IsString()
-    nickname: string
+    login: string
     
     @ApiProperty()
     @IsNotEmpty()
@@ -17,4 +17,5 @@ export class LoginDwarfDto {
     @IsNotEmpty()
     @IsString()
     password: string
+
 }

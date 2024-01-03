@@ -5,34 +5,50 @@ import {
   Body,
   Patch,
   Param,
-  Delete,
 } from '@nestjs/common';
 import { FileService } from './file.service';
-import { CreateFileDto } from './dto/create-file.dto';
-import { UpdateFileDto } from './dto/update-file.dto';
-import { ApiProperty } from '@nestjs/swagger';
-import { FILE_NAME } from './constants/file.constants';
+import { AddUserToFileDto } from './dto/add-user-to-file.dto';
+import { ApiTags } from '@nestjs/swagger';
+import { AddProxyDto } from './dto/add-proxy.dto';
+import { UpdateFileUser } from './dto/update-file-user.dto';
+import { BrowserSessionDto } from '../browser/dto/browser-session.dto';
 
+@ApiTags('file')
 @Controller('file')
 export class FileController {
   constructor(private readonly fileService: FileService) {}
 
-  @Post('test-1')
-  async test1(){
-    return await this.fileService.addNewUser({
-      email: "test-1@gmail.com",
-      nickname: "test-1",
-      password: "12321adad"
-    })
+  @Post('dwarf')
+  async addNewDwarf(@Body() dto: AddUserToFileDto ){
+    return await this.fileService.addNewUser(dto)
   }
 
-  @Post('test-2')
-  async test2(){
-    return await this.fileService.addLoggedInUser({
-      email: "test-1@gmail.com",
-      nickname: "test-1",
-      password: "12321adad"
-    })
+  @Post('dwarf/logged-in')
+  async loggedInDwarf(@Body() dto: AddUserToFileDto){
+    return await this.fileService.addLoggedInUser(dto)
+  }
+
+  @Post('dwarf/blocked')
+  async blockedDwarf(@Body() dto: AddUserToFileDto){
+    return await this.fileService.addBlockedUser(dto)
+  }
+
+  @Post('proxy')
+  async addProxy(@Body() dto: AddProxyDto) {
+    return await this.fileService.addProxyAddress(dto)
+  }
+
+  @Patch(':email')
+  async updateFileUser(
+    @Param() paramDto: BrowserSessionDto,
+    @Body() fileData: UpdateFileUser){
+    return await this.fileService.updateUserFileData(paramDto.email, fileData)
+  }
+
+
+  @Get('dwarfs')
+  async getData() {
+    return await this.fileService.getUsersData()
   }
   
 }

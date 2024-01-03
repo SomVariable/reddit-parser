@@ -16,6 +16,7 @@ async function bootstrap() {
   app.useGlobalPipes(new ValidationPipe({ transform: true, whitelist: true }));
   app.useGlobalFilters(new PrismaClientExceptionFilter(httpAdapter));
 
+
   const swaggerConfig = new DocumentBuilder()
     .setTitle('reddit-parser')
     .addBearerAuth()

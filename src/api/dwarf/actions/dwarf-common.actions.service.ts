@@ -53,7 +53,7 @@ export class DwarfCommonActionsService {
     await page.click(DWARF_SELECTORS.HOME_BUTTON);
     await page.waitForSelector(DWARF_SELECTORS.FILTER_COMMUNITY);
     await page.type(DWARF_SELECTORS.FILTER_COMMUNITY, communityName);
-    await page.waitForSelector(DWARF_SELECTORS.MODER_COMMUNITY);
+    await page.waitForSelector(DWARF_SELECTORS.YOUR_COMMUNITY);
 
     await page.evaluate((DWARF_SELECTORS) => {
       const elementsNodeList = document.querySelectorAll(
