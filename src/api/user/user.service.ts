@@ -25,6 +25,7 @@ import { BROWSER_BAD_REQUEST_ERRORS } from '../browser/constants/browser.constan
 import { Queue } from 'bull';
 import { InjectQueue } from '@nestjs/bull';
 import { BrowserSessionDto } from '../browser/dto/browser-session.dto';
+import { checkForBanHelper } from 'src/common/helper/check-ban.helper';
 
 @Injectable()
 export class UserService {
@@ -113,8 +114,9 @@ export class UserService {
       await page.waitForSelector(DWARF_SELECTORS.PASSWORD);
       await page.click(DWARF_SELECTORS.PASSWORD);
       await page.type(DWARF_SELECTORS.PASSWORD, user.password);
-      await waitForTimeout(1000);
+      await waitForTimeout(1000)
       await page.evaluate(this._popUpLoginButtonClick);
+      await checkForBanHelper(page)
       await page.waitForSelector(DWARF_SELECTORS.BLACK_WINDOW);
       await page.click('body');
       this.loggedInUsers.push(user.email);

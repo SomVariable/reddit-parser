@@ -5,6 +5,7 @@ import { COMMUNITY_SELECTORS } from './constants/community.constants';
 import { COMMUNITY_TYPE } from './types/community.types';
 import { waitForTimeout } from '../user/actions/user.actions';
 import { Page } from 'puppeteer';
+import { checkForBanHelper } from 'src/common/helper/check-ban.helper';
 
 @Injectable()
 export class CommunityService {
@@ -40,7 +41,7 @@ export class CommunityService {
     );
     // start createCommunityPopUp actions
     await page.type(COMMUNITY_SELECTORS.CREATION_POPUP_TITLE_INPUT, title);
-    await this._checkErrorMessage(page)
+    await this._checkErrorMessage(page);
     switch (type) {
       case COMMUNITY_TYPE.PRIVATE:
         await page.click(
@@ -60,7 +61,9 @@ export class CommunityService {
       await page.click(COMMUNITY_SELECTORS.CREATION_POPUP_OPTION_ADULT_CONTENT);
 
     await page.click(COMMUNITY_SELECTORS.CREATION_POPUP_CREATE_BUTTON);
-    await this._checkErrorMessage(page)
+    await this._checkErrorMessage(page);
+    await waitForTimeout(1000);
+    await checkForBanHelper(page);
     // cancel default post creation
     await page.waitForSelector(
       COMMUNITY_SELECTORS.POST_CREATE_POPUP_NOT_NOW_BUTTON,
@@ -70,16 +73,16 @@ export class CommunityService {
   }
 
   private async _checkErrorMessage(page: Page) {
-    await waitForTimeout(500)
+    await waitForTimeout(500);
     const errorMessage = await page.$eval(
       COMMUNITY_SELECTORS.CREATION_ERROR_MESSAGE,
-      (el) => el.textContent
+      (el) => el.textContent,
     );
 
-    if(errorMessage) {
-      throw new BadRequestException(errorMessage)
+    if (errorMessage) {
+      throw new BadRequestException(errorMessage);
     }
 
-    return true
-  } 
+    return true;
+  }
 }
