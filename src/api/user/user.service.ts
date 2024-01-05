@@ -1,3 +1,5 @@
+import { PostService } from './../post/post.service';
+import { CsvService } from './../csv/csv.service';
 import { UserCommonActionsService } from './actions/user-common.actions.service';
 import { BrowserService } from '../browser/browser.service';
 import {
@@ -26,6 +28,8 @@ import { Queue } from 'bull';
 import { InjectQueue } from '@nestjs/bull';
 import { BrowserSessionDto } from '../browser/dto/browser-session.dto';
 import { checkForBanHelper } from 'src/common/helper/check-ban.helper';
+import { CsvRow } from '../csv/types/csv.types';
+import { FileService } from '../file/file.service';
 
 @Injectable()
 export class UserService {
@@ -36,14 +40,17 @@ export class UserService {
   constructor(
     private readonly browserService: BrowserService,
     private readonly userCommonActionsService: UserCommonActionsService,
+    private readonly fileService: FileService,
+    private readonly postService: PostService,
+    private readonly csvService: CsvService,
     @InjectQueue(USER_BULL.NAME) private userQueue: Queue,
   ) {}
 
   async emitActivity(email: string) {
-    const result = await this.userQueue.add(USER_BULL.EMIT_ACTIVITY, {email})
-    const {id, data, name} = result
+    const result = await this.userQueue.add(USER_BULL.EMIT_ACTIVITY, { email });
+    const { id, data, name } = result;
 
-    return {id, data, name}
+    return { id, data, name };
   }
 
   async bullEmitActivity(email: string) {
@@ -114,9 +121,9 @@ export class UserService {
       await page.waitForSelector(DWARF_SELECTORS.PASSWORD);
       await page.click(DWARF_SELECTORS.PASSWORD);
       await page.type(DWARF_SELECTORS.PASSWORD, user.password);
-      await waitForTimeout(1000)
+      await waitForTimeout(1000);
       await page.evaluate(this._popUpLoginButtonClick);
-      await checkForBanHelper(page)
+      await checkForBanHelper(page);
       await page.waitForSelector(DWARF_SELECTORS.BLACK_WINDOW);
       await page.click('body');
       this.loggedInUsers.push(user.email);
@@ -135,6 +142,36 @@ export class UserService {
       );
       await waitForTimeout(20000);
     }
+  }
+
+  async startCsvAction(
+    {email}: BrowserSessionDto,
+    csvFile: Express.Multer.File,
+  ) {
+    const csvRows = await this.csvService.parseCsvFile(csvFile);
+    const result = await this.userQueue.add(USER_BULL.EMIT_ACTIVITY, { email, data: csvRows });
+    const { id, data, name } = result;
+
+    return { id, data, name };
+
+
+    return data;
+  }
+
+  async queueDoActionByCsvRow(
+    page: Page,
+    browserSession: BrowserSessionDto,
+    { subreddit, comment, tag, AdditionalInfo, flair }: CsvRow,
+  ) {
+    await this.userCommonActionsService.goToTheCommunity(page, subreddit);
+    const title = await this.fileService.parseTagFile(tag);
+    console.log(title);
+    await this.postService.createPost({
+      email: browserSession.email,
+      text: comment,
+      title: `${title} ${AdditionalInfo}`,
+      flair,
+    });
   }
 
   private async _popUpLoginButtonClick() {

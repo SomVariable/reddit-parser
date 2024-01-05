@@ -1,24 +1,37 @@
 import { Injectable, InternalServerErrorException } from '@nestjs/common';
-import * as fs from 'fs'; 
-import * as fsPromise from 'fs/promises'; 
+import * as fs from 'fs';
+import * as fsPromise from 'fs/promises';
 import * as csv from 'csv-parser';
 import { CSV_FILE_PATH } from './constants/csv.constants';
 import * as iconv from 'iconv-lite';
-import { CsvRow } from './types/csv.types';
+import { CsvFileFormatRow, CsvRow, CsvRowFileFormat } from './types/csv.types';
+import { Readable } from 'stream';
 
 @Injectable()
 export class CsvService {
-  async parseCsvFile() {
+  async parseCsvFile(file: Express.Multer.File) {
     try {
-      const fileStream = fs.createReadStream(CSV_FILE_PATH);
       const converterStream = iconv.decodeStream('win1251');
       const data: CsvRow[] = [];
       await new Promise((resolve, reject) => {
-        fileStream
+        const readableStream = new Readable();
+        readableStream.push(file.buffer);
+        readableStream.push(null);
+        readableStream
           .pipe(converterStream)
           .pipe(csv({ separator: ';' }))
-          .on('data', (row: CsvRow) => {
-            data.push(row);
+          .on('data', (rowCsvFileFormat: CsvFileFormatRow) => {
+            const rowCsvFormat: CsvRow = {
+              subreddit: rowCsvFileFormat[CsvRowFileFormat.subreddit],
+              postCount: rowCsvFileFormat[CsvRowFileFormat.postCount],
+              to: rowCsvFileFormat[CsvRowFileFormat.to],
+              AdditionalInfo: rowCsvFileFormat[CsvRowFileFormat.AdditionalInfo],
+              comment: rowCsvFileFormat[CsvRowFileFormat.comment],
+              flair: rowCsvFileFormat[CsvRowFileFormat.flair],
+              from: rowCsvFileFormat[CsvRowFileFormat.from],
+              tag: rowCsvFileFormat[CsvRowFileFormat.tag],
+            };
+            data.push(rowCsvFormat);
           })
           .on('end', () => {
             resolve(data);

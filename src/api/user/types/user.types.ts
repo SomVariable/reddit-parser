@@ -1,3 +1,5 @@
+import { CsvRow } from "src/api/csv/types/csv.types"
+
 export enum UserActionWeight {
     highFrequency = 20,
     mediumFrequency = 7,
@@ -25,7 +27,13 @@ export enum DWARF_SELECTORS {
 export enum USER_BULL {
     NAME = 'user',
     LOGIN = 'login-user',
-    EMIT_ACTIVITY = 'emit-activity'
+    EMIT_ACTIVITY = 'emit-activity',
+    CSV_ACTION = 'csv-action'
+}
+
+export interface IBullCsvActionInputData {
+    email: string,
+    csvRows: CsvRow[]
 }
 
 export type UserAction = {

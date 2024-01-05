@@ -11,6 +11,7 @@ import {
 } from 'class-validator';
 import { BrowserSessionDto } from 'src/api/browser/dto/browser-session.dto';
 import {
+  IFlair,
   IImagesVideosSection,
   ILinkSection,
   IPollSection,
@@ -20,7 +21,12 @@ import { Transform, Type } from 'class-transformer';
 
 export class CreatePostDto
   extends BrowserSessionDto
-  implements IPostSection, IPollSection, ILinkSection, IImagesVideosSection
+  implements
+    IPostSection,
+    IPollSection,
+    ILinkSection,
+    IImagesVideosSection,
+    IFlair
 {
   @ApiProperty()
   @IsString()
@@ -31,26 +37,36 @@ export class CreatePostDto
   @ApiPropertyOptional()
   @IsString()
   @IsNotEmpty()
-  text: string;
+  text?: string;
 
   @ApiPropertyOptional()
   @Type(() => Boolean)
-  isSpoiler: false = false;
+  @IsOptional()
+  isSpoiler?: false = false;
 
   @ApiPropertyOptional()
   @Type(() => Boolean)
-  isNsfw: false = false;
+  @IsOptional()
+  isNsfw?: false = false;
 
-  @ApiProperty()
-  @Transform(({value}) => value.split(','))
-  @IsString({each: true})
+  @ApiPropertyOptional()
+  @Transform(({ value }) => value.split(','))
+  @IsString({ each: true })
+  @IsOptional()
   @ArrayMaxSize(6, { message: 'Array should be less than 6 elements' })
-  options: string[];
+  options?: string[] = [];
 
   @ApiPropertyOptional()
   @IsString()
-  url: string;
+  @IsOptional()
+  url?: string;
 
   @ApiPropertyOptional({ type: 'string', format: 'binary' })
-  file: Express.Multer.File
+  @IsOptional()
+  file?: Express.Multer.File;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsString()
+  flair?: string;
 }

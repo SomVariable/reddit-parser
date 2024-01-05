@@ -8,12 +8,16 @@ import { UserCommonActionsService } from './actions/user-common.actions.service'
 import { UserConsumer } from './processors/user.processor';
 import { BullModule } from '@nestjs/bull';
 import { USER_BULL } from './types/user.types';
+import { CsvModule } from '../csv/csv.module';
+import { PostModule } from '../post/post.module';
 
 @Module({
   imports: [
     ConfigModule,
     FileModule,
     BrowserModule,
+    PostModule,
+    CsvModule,
     BullModule.registerQueue({
       name: USER_BULL.NAME
     }),

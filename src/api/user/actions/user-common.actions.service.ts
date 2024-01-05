@@ -31,7 +31,7 @@ export class UserCommonActionsService {
     }
   }
 
-  private async scrollByWheel(
+  async scrollByWheel(
     page: Page,
     delta: { x: boolean; y: boolean } = { x: false, y: true },
     x?: number,
@@ -46,9 +46,9 @@ export class UserCommonActionsService {
     });
   }
 
-  private doNothing() {}
+  doNothing() {}
 
-  private async goToTheCommunity(page: Page, communityName: string = '') {
+  async goToTheCommunity(page: Page, communityName: string = '') {
     await page.waitForSelector(DWARF_SELECTORS.HOME_BUTTON);
     await page.click(DWARF_SELECTORS.HOME_BUTTON);
     await page.waitForSelector(DWARF_SELECTORS.FILTER_COMMUNITY);

@@ -1,18 +1,22 @@
 export interface IPostSection {
   title: string;
-  text: string;
-  isSpoiler: false;
-  isNsfw: false;
+  text?: string;
+  isSpoiler?: false;
+  isNsfw?: false;
 }
 
 export interface IPollSection {
-  options: string[];
+  options?: string[];
 }
 
 export interface ILinkSection {
-    url: string;
+    url?: string;
 }
 
 export interface IImagesVideosSection {
-  file: Express.Multer.File
+  file?: Express.Multer.File
+}
+
+export interface IFlair {
+  flair?: string
 }

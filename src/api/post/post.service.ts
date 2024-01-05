@@ -8,6 +8,7 @@ import { CreatePostDto } from './dto/create-post.dto';
 import { POST_SELECTORS } from './constants/post.constants';
 import { COMMUNITY_SELECTORS } from '../community/constants/community.constants';
 import {
+  IFlair,
   IImagesVideosSection,
   ILinkSection,
   IPollSection,
@@ -24,7 +25,7 @@ import * as fs from 'fs';
 export class PostService {
   constructor(private readonly browserService: BrowserService) {}
 
-  async createPost(dto: CreatePostDto, file: Express.Multer.File) {
+  async createPost(dto: CreatePostDto, file?: Express.Multer.File) {
     if (!this.browserService.getBrowser({ email: dto.email })) {
       throw new BadRequestException(BROWSER_BAD_REQUEST_ERRORS.MISSING_BROWSER);
     }
@@ -33,7 +34,7 @@ export class PostService {
       throw new BadRequestException(BROWSER_BAD_REQUEST_ERRORS.MISSING_PAGE);
     }
 
-    const { email, isNsfw, options, isSpoiler, text, title, url } = dto;
+    const { email, isNsfw, options, isSpoiler, text, title, url, flair } = dto;
     const page = await this.browserService.getPage({ email });
     // go to post creation form
     await page.waitForSelector(
@@ -48,14 +49,29 @@ export class PostService {
       isSpoiler,
       text,
     });
+    await this.addFlair(page, {flair})
     await this.fillLinkSection(page, { url });
     await this.fillPollSection(page, { options });
-    await waitForTimeout(2000);
+    await waitForTimeout(500);
     await this.fillImagesAndVideosSection(page, { file });
-    await waitForTimeout(1000);
-    //await page.waitForSelector(POST_SELECTORS.FORM_ADD_TO_COLLECTION_BUTTON)
+    await waitForTimeout(500);
     await page.waitForSelector(POST_SELECTORS.FORM_CREATE_POST_BUTTON);
     await page.click(POST_SELECTORS.FORM_CREATE_POST_BUTTON);
+  }
+
+  async addFlair(page: Page, {flair}: IFlair) {
+    await page.waitForSelector(POST_SELECTORS.FORM_SECTION_POST_FLAIR_ADD_FLAIR_BUTTON)
+    await page.click(POST_SELECTORS.FORM_SECTION_POST_FLAIR_ADD_FLAIR_BUTTON)
+    
+    await page.waitForSelector(POST_SELECTORS.FORM_SECTION_POST_FLAIR_ADD_FLAIR_INPUT)
+    await page.type(POST_SELECTORS.FORM_SECTION_POST_FLAIR_ADD_FLAIR_INPUT, flair)
+    const flairElement = await page.$(POST_SELECTORS.FORM_SECTION_POST_FLAIR_ADD_FLAIR_FOUND_ELEMENT)
+
+    if(!flairElement) throw new BadRequestException('there is no such flair')
+
+    await flairElement.click()
+    await page.click(POST_SELECTORS.FORM_SECTION_POST_FLAIR_ADD_FLAIR_APPLY_BUTTON)
+    await waitForTimeout(1000)
   }
 
   async fillPostSection(

@@ -6,6 +6,7 @@ import { BrowserModule } from '../browser/browser.module';
 @Module({
   imports: [BrowserModule],
   controllers: [PostController],
-  providers: [PostService]
+  providers: [PostService],
+  exports: [PostService]
 })
 export class PostModule {}

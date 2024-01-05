@@ -1,11 +1,12 @@
-import { BackupService } from './../backup/backup.service';
-import { BadRequestException, Injectable, InternalServerErrorException } from '@nestjs/common';
-import { AddUserToFileDto } from './dto/add-user-to-file.dto';
 import * as fs from 'fs/promises';
-import { createReadStream, createWriteStream } from 'fs';
-import { FILE_INTERNAL_SERVER_ERROR_EXCEPTION, FILE_NAME } from './constants/file.constants';
+import * as path from 'path'
 import * as iconv from 'iconv-lite';
 import type { Response } from 'express';
+import { BadRequestException, Injectable, InternalServerErrorException } from '@nestjs/common';
+import { BackupService } from './../backup/backup.service';
+import { createReadStream, createWriteStream } from 'fs';
+import { FILE_INTERNAL_SERVER_ERROR_EXCEPTION, FILE_NAME } from './constants/file.constants';
+import { AddUserToFileDto } from './dto/add-user-to-file.dto';
 import { FileUser } from './types/file.types';
 import { AddProxyDto } from './dto/add-proxy.dto';
 import { UpdateFileUser } from './dto/update-file-user.dto';
@@ -14,6 +15,15 @@ import { BrowserSessionDto } from '../browser/dto/browser-session.dto';
 @Injectable()
 export class FileService {
   constructor(private readonly backupService: BackupService) {}
+
+  async parseTagFile(fileName: string) {
+    const fileDir = path.join(__dirname, '../../../', 'payload/Content/Titles', `${fileName}.txt`)
+    console.log(fileDir)
+    const fileInfo = await fs.readFile(fileDir, 'utf-8')
+    const fileData = fileInfo.split('\r\n')
+
+    return fileData[Math.floor(Math.random() * fileData.length)]
+  }
 
   async updateUserFileData(email: string, updateData: UpdateFileUser) {
     const users = await this.getUsersData();
