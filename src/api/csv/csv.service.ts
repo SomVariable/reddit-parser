@@ -1,17 +1,19 @@
 import { Injectable, InternalServerErrorException } from '@nestjs/common';
-import * as fs from 'fs';
-import * as fsPromise from 'fs/promises';
+import { readFile, unlink } from 'fs/promises';
 import * as csv from 'csv-parser';
-import { CSV_FILE_PATH } from './constants/csv.constants';
+import {join} from 'path'
+import { CSV_FILE_PATH, HEADERS, TEMP_PATH } from './constants/csv.constants';
 import * as iconv from 'iconv-lite';
 import { CsvFileFormatRow, CsvRow, CsvRowFileFormat } from './types/csv.types';
 import { Readable } from 'stream';
+import { createObjectCsvWriter } from 'csv-writer';
+import { CreateCsvFile } from './dto/create-csv-file.dto';
 
 @Injectable()
 export class CsvService {
   async parseCsvFile(file: Express.Multer.File) {
     try {
-      const converterStream = iconv.decodeStream('win1251');
+      const converterStream = iconv.decodeStream('utf8');
       const data: CsvRow[] = [];
       await new Promise((resolve, reject) => {
         const readableStream = new Readable();
@@ -21,6 +23,7 @@ export class CsvService {
           .pipe(converterStream)
           .pipe(csv({ separator: ';' }))
           .on('data', (rowCsvFileFormat: CsvFileFormatRow) => {
+            console.log(rowCsvFileFormat)
             const rowCsvFormat: CsvRow = {
               subreddit: rowCsvFileFormat[CsvRowFileFormat.subreddit],
               postCount: rowCsvFileFormat[CsvRowFileFormat.postCount],
@@ -38,50 +41,35 @@ export class CsvService {
           })
           .on('error', (error) => reject(error));
       });
-
+      
       return data;
     } catch (error) {
       throw new InternalServerErrorException(error);
     }
   }
 
-  async createCsvFromJson() {
-    const data = [
-      {
-        subreddit: 'example1',
-        tag: 'tag1',
-        flair: 'flair1',
-        comment: 'comment1',
-        titleSuffix: 'suffix1',
-        postsPerDayLimit: 5,
-        upvotesRangeFrom: 10,
-        upvotesRangeTo: 20,
-      },
-      {
-        subreddit: 'example2',
-        tag: 'tag2',
-        flair: 'flair2',
-        comment: 'comment2',
-        titleSuffix: 'suffix2',
-        postsPerDayLimit: 3,
-        upvotesRangeFrom: 8,
-        upvotesRangeTo: 15,
-      },
-    ];
+  async createCsvFromJson({ rows }: CreateCsvFile) {
+    const filePath = join(TEMP_PATH, `${Date.now()}.csv`)
+    try {
+      const csvWriter = createObjectCsvWriter({
+        path: filePath,
+        header: Object.keys(CsvRowFileFormat).map(prop => {
+          return {
+            id: prop, title: CsvRowFileFormat[prop]
+          }
+        }),
+        fieldDelimiter: ';',
+        encoding: 'utf8',
+      }); 
+      await csvWriter.writeRecords(rows)
+      const buffer = await readFile(filePath, 'utf8');
 
-    const header =
-      'Сабредит,Тег,Флейр,Комментарий,Дополнение в конце заголовка / титула,Огр на кол-во постов в сутки,"Апвоут, от","Апвоут, до"';
-
-    const csvContent = `${header}\n${data
-      .map(
-        (row) =>
-          `${row.subreddit},${row.tag},${row.flair},${row.comment},${row.titleSuffix},${row.postsPerDayLimit},${row.upvotesRangeFrom},${row.upvotesRangeTo}`,
-      )
-      .join('\n')}`;
-
-    const csvBuffer = iconv.encode(csvContent, 'win1251');
-
-    await fsPromise.writeFile('./output.csv', csvBuffer);
-    return true;
+      return  Buffer.from(buffer, 'utf8');
+    } catch (error) {
+      throw new InternalServerErrorException(error?.message)
+    } finally {
+      await unlink(filePath)
+    }
+    
   }
 }

@@ -16,7 +16,7 @@ import { FileInterceptor } from '@nestjs/platform-express';
 export class PostController {
   constructor(private readonly postService: PostService) {}
 
-  @Post('create-post')
+  @Post('')
   @ApiConsumes('multipart/form-data')
   @UseInterceptors(FileInterceptor('file'))
   async createPost(

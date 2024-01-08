@@ -1,11 +1,18 @@
 import * as fs from 'fs/promises';
-import * as path from 'path'
+import * as path from 'path';
 import * as iconv from 'iconv-lite';
 import type { Response } from 'express';
-import { BadRequestException, Injectable, InternalServerErrorException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  InternalServerErrorException,
+} from '@nestjs/common';
 import { BackupService } from './../backup/backup.service';
 import { createReadStream, createWriteStream } from 'fs';
-import { FILE_INTERNAL_SERVER_ERROR_EXCEPTION, FILE_NAME } from './constants/file.constants';
+import {
+  FILE_INTERNAL_SERVER_ERROR_EXCEPTION,
+  FILE_NAME,
+} from './constants/file.constants';
 import { AddUserToFileDto } from './dto/add-user-to-file.dto';
 import { FileUser } from './types/file.types';
 import { AddProxyDto } from './dto/add-proxy.dto';
@@ -17,12 +24,17 @@ export class FileService {
   constructor(private readonly backupService: BackupService) {}
 
   async parseTagFile(fileName: string) {
-    const fileDir = path.join(__dirname, '../../../', 'payload/Content/Titles', `${fileName}.txt`)
-    console.log(fileDir)
-    const fileInfo = await fs.readFile(fileDir, 'utf-8')
-    const fileData = fileInfo.split('\r\n')
+    const fileDir = path.join(
+      __dirname,
+      '../../../',
+      'payload/Content/Titles',
+      `${fileName}.txt`,
+    );
+    console.log(fileDir);
+    const fileInfo = await fs.readFile(fileDir, 'utf-8');
+    const fileData = fileInfo.split('\r\n');
 
-    return fileData[Math.floor(Math.random() * fileData.length)]
+    return fileData[Math.floor(Math.random() * fileData.length)];
   }
 
   async updateUserFileData(email: string, updateData: UpdateFileUser) {
@@ -63,8 +75,10 @@ export class FileService {
     const user = users.filter((user) => user.email === email);
 
     if (user.length > 1) {
-      throw new InternalServerErrorException(FILE_INTERNAL_SERVER_ERROR_EXCEPTION.USER_DUPLICATE)
-    } 
+      throw new InternalServerErrorException(
+        FILE_INTERNAL_SERVER_ERROR_EXCEPTION.USER_DUPLICATE,
+      );
+    }
     return user[0];
   }
 
@@ -98,17 +112,38 @@ export class FileService {
     return usersWithNewUser;
   }
 
-  parseProxy(proxy: string) {
-    const _ = proxy.split(':') 
+  private async checkReportDir() {
+    if (
+      !!(await fs
+        .stat(path.join(__dirname, '../../../payload/Content/report'))
+        .catch((e) => false))
+    ) {
+      await fs.mkdir(path.join(__dirname, '../../../payload/Content/'));
+    } else {
+    }
+  }
+
+  private async checkTempDir(
     
-    if(_.length !== 2) {
-      throw new InternalServerErrorException(FILE_INTERNAL_SERVER_ERROR_EXCEPTION.WRONG_PROXY_FORMAT)
+  ) {}
+
+  private async makeReportDir() {}
+
+  private async makeTempDir() {}
+
+  parseProxy(proxy: string) {
+    const _ = proxy.split(':');
+
+    if (_.length !== 2) {
+      throw new InternalServerErrorException(
+        FILE_INTERNAL_SERVER_ERROR_EXCEPTION.WRONG_PROXY_FORMAT,
+      );
     }
 
     return {
       proxy: _[0],
-      port: _[1]
-    }
+      port: _[1],
+    };
   }
 
   private async _addFileInfo(data: any, fileName: keyof typeof FILE_NAME) {
@@ -178,6 +213,4 @@ export class FileService {
   private _userFormatToFile({ email, login, password, proxy }: FileUser) {
     return `${email};${login};${password};${proxy}`;
   }
-
-  
 }
