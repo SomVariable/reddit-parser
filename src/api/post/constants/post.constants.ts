@@ -31,6 +31,14 @@ export enum POST_SELECTORS {
   FORM_CANCEL_COLLECTION_BUTTON = "button._2tLOIj2nClBaVRuMBIJE8X._2iuoyPiKHN3kfOoeIQalDT._2tU8R9NTqhvBrhoNAXWWcP.HNozj_dKjQZ59ZsfEegz8",
   COLLECTION_TITLE_INPUT = "div._11JSvybbRhcX_cfoagpne_ > label > input",
   FORM_CREATE_POST_BUTTON = "button._18Bo5Wuo3tMV-RDB8-kh8Z._1_Xn_Na9NfUSd_yoc1w2Eb._2iuoyPiKHN3kfOoeIQalDT._10BQ7pjWbeYP63SAPNS8Ts.HNozj_dKjQZ59ZsfEegz8",
+  COMMENT_BUTTON = "a._1UoeAeSRhOKSNdY_h3iS1O._1Hw7tY9pMr-T1F4P1C-xNU._3U_7i38RDPV5eBv7m4M-9J._2qww3J5KKzsD7e5DO0BvvU",
+  COMMENT_COMMENT_DIV = "#overlayScrollContainer > div._1npCwF50X2J7Wt82SZi6J0 > div.u35lf2ynn4jHsVUwPmNU.Dx3UxiK86VcfkFQVHNXNi > div.uI_hDmU5GSiudtABRz_37 > div._1r4smTyOEZFO91uFIdWW6T.aUM8DQ_Nz5wL0EJc_wte6 > div:nth-child(2) > div > div > div._2baJGEALPiEMZpWB2iWQs7 > div > div:nth-child(1) > div > div > div",
+  COMMENT_ACCEPT_COMMENT = "#overlayScrollContainer > div._1npCwF50X2J7Wt82SZi6J0 > div.u35lf2ynn4jHsVUwPmNU.Dx3UxiK86VcfkFQVHNXNi > div.uI_hDmU5GSiudtABRz_37 > div._1r4smTyOEZFO91uFIdWW6T.aUM8DQ_Nz5wL0EJc_wte6 > div:nth-child(2) > div > div > div._17TqawK-44tH0psnHPIhzS.RQTXfVRnnTF5ont3w58rx > div._3SNMf5ZJL_5F1qxcZkD0Cp > button"
 }
 
 export enum POST_BULL { NAME = 'post-bull', CREATE_POST = 'create-post'}
+
+export enum POST_BUTTON_ID {
+  LIKE = 0,
+  DISLIKE = 1
+}

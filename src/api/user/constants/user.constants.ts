@@ -27,7 +27,8 @@ export enum USER_SELECTORS {
     FILTER_COMMUNITY = "#header-subreddit-filter",
     MODER_COMMUNITY = "a[id^='focus-modt5']",
     YOUR_COMMUNITY = "a[id^='focus-subt5']",
-    BLACK_WINDOW = "#SHORTCUT_FOCUSABLE_DIV > div:nth-child(7) > div"
+    BLACK_WINDOW = "#SHORTCUT_FOCUSABLE_DIV > div:nth-child(7) > div",
+    TAPE = '#AppRouter-main-content > div > div > div._3ozFtOe6WpJEMUtxDOIvtU > div._31N0dvxfpsO6Ur5AKx4O5d > div._1OVBBWLtHoSPfGCRaPzpTf._3nSp9cdBpqL13CqjdMr2L_._2OVNlZuUd8L9v0yVECZ2iA > div.rpBJOHq2PR60pnwJlUyP0 '
 }
 
 export enum USER_BULL {
