@@ -5,6 +5,7 @@ export class BrowserInternalServerErrorDto {
   @ApiProperty({
     type: BROWSER_INTERNAL_SERVER_ERRORS,
     enum: BROWSER_INTERNAL_SERVER_ERRORS,
+    example: BROWSER_INTERNAL_SERVER_ERRORS,
   })
   message: string;
 }

@@ -10,14 +10,18 @@ import {
 import { BackupService } from './../backup/backup.service';
 import { createReadStream, createWriteStream } from 'fs';
 import {
-  FILE_INTERNAL_SERVER_ERROR_EXCEPTION,
+  FILE_BAD_REQUEST_ERRORS,
+  FILE_INTERNAL_SERVER_ERROR,
   FILE_NAME,
+  FILE_PATH,
 } from './constants/file.constants';
 import { AddUserToFileDto } from './dto/add-user-to-file.dto';
 import { FileUser } from './types/file.types';
 import { AddProxyDto } from './dto/add-proxy.dto';
 import { UpdateFileUser } from './dto/update-file-user.dto';
 import { BrowserSessionDto } from '../browser/dto/browser-session.dto';
+import { AddReportDto } from './dto/add-report.dto';
+import { AddTempDto } from './dto/add-temp.dto';
 
 @Injectable()
 export class FileService {
@@ -25,8 +29,7 @@ export class FileService {
 
   async parseTagFile(fileName: string) {
     const fileDir = path.join(
-      __dirname,
-      '../../../',
+      process.cwd(),
       'payload/Content/Titles',
       `${fileName}.txt`,
     );
@@ -76,7 +79,7 @@ export class FileService {
 
     if (user.length > 1) {
       throw new InternalServerErrorException(
-        FILE_INTERNAL_SERVER_ERROR_EXCEPTION.USER_DUPLICATE,
+        FILE_INTERNAL_SERVER_ERROR.USER_DUPLICATE,
       );
     }
     return user[0];
@@ -112,31 +115,34 @@ export class FileService {
     return usersWithNewUser;
   }
 
-  private async checkReportDir() {
-    if (
-      !!(await fs
-        .stat(path.join(__dirname, '../../../payload/Content/report'))
-        .catch((e) => false))
-    ) {
-      await fs.mkdir(path.join(__dirname, '../../../payload/Content/'));
-    } else {
+  async addReport(dto: AddReportDto) {
+    if(await !this._checkReportDir()) {
+      await fs.mkdir(path.join(process.cwd(), FILE_PATH.REPORT))
     }
+
+    if(!dto.message) throw new BadRequestException(FILE_BAD_REQUEST_ERRORS.MISSING_DTO)
+
+    const fileName = `${Date.now()}.txt`
+    await fs.writeFile(path.join(FILE_PATH.REPORT, fileName), dto.message)
   }
 
-  private async checkTempDir(
-    
-  ) {}
+  async addTemp(dto: AddTempDto) {
+    if(await !this._checkTempDir()) {
+      await fs.mkdir(path.join(process.cwd(), FILE_PATH.TEMP))
+    }
 
-  private async makeReportDir() {}
+    if(!dto.message) throw new BadRequestException(FILE_BAD_REQUEST_ERRORS.MISSING_DTO)
 
-  private async makeTempDir() {}
+    const fileName = `${Date.now()}.txt`
+    await fs.writeFile(path.join(FILE_PATH.TEMP, fileName), dto.message)
+  }
 
   parseProxy(proxy: string) {
     const _ = proxy.split(':');
 
     if (_.length !== 2) {
       throw new InternalServerErrorException(
-        FILE_INTERNAL_SERVER_ERROR_EXCEPTION.WRONG_PROXY_FORMAT,
+        FILE_INTERNAL_SERVER_ERROR.WRONG_PROXY_FORMAT,
       );
     }
 
@@ -146,6 +152,18 @@ export class FileService {
     };
   }
 
+  private async _checkReportDir() {
+    return !!(await fs
+      .stat(path.join(process.cwd(), FILE_PATH.REPORT))
+      .catch((e) => false));
+  }
+
+  private async _checkTempDir() {
+    return !!(await fs
+      .stat(path.join(process.cwd(), FILE_PATH.TEMP))
+      .catch((e) => false));
+  }
+
   private async _addFileInfo(data: any, fileName: keyof typeof FILE_NAME) {
     switch (fileName) {
       case 'ACCOUNTS':
@@ -153,7 +171,7 @@ export class FileService {
       case 'FROZEN_ACCOUNTS':
         {
           const fileStream = createWriteStream(
-            `payload/${FILE_NAME[fileName]}`,
+            path.join(process.cwd(), 'payload', FILE_NAME[fileName]),
             {
               flags: 'a',
               encoding: 'utf-8',
@@ -168,7 +186,7 @@ export class FileService {
       case 'PROXY':
         {
           const fileStream = createWriteStream(
-            `payload/${FILE_NAME[fileName]}`,
+            path.join(process.cwd(), 'payload', FILE_NAME[fileName]),
             {
               flags: 'a',
               encoding: 'utf-8',
@@ -180,7 +198,7 @@ export class FileService {
         }
         break;
       default: {
-        throw new BadRequestException('there is no such file in the FILE_NAME');
+        throw new BadRequestException(FILE_BAD_REQUEST_ERRORS.MISSING_FILE);
       }
     }
   }

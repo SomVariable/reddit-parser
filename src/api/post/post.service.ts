@@ -5,7 +5,7 @@ import {
 } from '@nestjs/common';
 import { BrowserService } from '../browser/browser.service';
 import { CreatePostDto } from './dto/create-post.dto';
-import { POST_SELECTORS } from './constants/post.constants';
+import { POST_BULL, POST_SELECTORS } from './constants/post.constants';
 import { COMMUNITY_SELECTORS } from '../community/constants/community.constants';
 import {
   IFlair,
@@ -20,12 +20,26 @@ import { BROWSER_BAD_REQUEST_ERRORS } from '../browser/constants/browser.constan
 import { waitForTimeout } from '../user/actions/user.actions';
 import * as path from 'path';
 import * as fs from 'fs';
+import { Queue } from 'bull';
+import { InjectQueue } from '@nestjs/bull';
 
 @Injectable()
 export class PostService {
-  constructor(private readonly browserService: BrowserService) {}
+  constructor(private readonly browserService: BrowserService,
+    @InjectQueue(POST_BULL.NAME) private postQueue: Queue) {}
 
   async createPost(dto: CreatePostDto, file?: Express.Multer.File) {
+    const _ = await this.postQueue.add(POST_BULL.CREATE_POST, {
+      data: {
+        dto, file
+      }
+    })
+    const {data, id, name} = _
+    
+    return {data, id, name}
+  }
+
+  async queueCreatePost(dto: CreatePostDto, file?: Express.Multer.File) {
     if (!this.browserService.getBrowser({ email: dto.email })) {
       throw new BadRequestException(BROWSER_BAD_REQUEST_ERRORS.MISSING_BROWSER);
     }

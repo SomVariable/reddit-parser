@@ -10,10 +10,11 @@ import { BadRequestException, Inject, Logger } from '@nestjs/common';
 import { Job } from 'bull';
 import { waitForTimeout } from 'src/api/user/actions/user.actions';
 import { UserService } from '../user.service';
-import { DWARF_BAD_REQUEST_EXCEPTION, IBullCsvActionInputData, USER_BULL } from '../types/user.types';
+import {  IBullCsvActionInputData } from '../types/user.types';
 import { BROWSER_BULL_MESSAGES } from 'src/api/browser/constants/browser.constants';
 import { LoginUserDto } from '../dto/login-user.dto';
 import { BrowserSessionDto } from 'src/api/browser/dto/browser-session.dto';
+import { USER_BAD_REQUEST_EXCEPTION, USER_BULL } from '../constants/user.constants';
 
 @Processor(USER_BULL.NAME)
 export class UserConsumer {
@@ -26,7 +27,7 @@ export class UserConsumer {
   async startBrowser(job: Job<LoginUserDto>) {
     if (!job.data || !job.data.email)
       throw new BadRequestException(
-        DWARF_BAD_REQUEST_EXCEPTION.BULL_MISSING_DATA_LOGIN,
+        USER_BAD_REQUEST_EXCEPTION.BULL_MISSING_DATA_LOGIN,
       );
 
     await this.browserService.waitForBrowser({ email: job?.data?.email });
@@ -41,7 +42,7 @@ export class UserConsumer {
   async startPage(job: Job<BrowserSessionDto>) {
     if (!job.data || !job.data.email)
       throw new BadRequestException(
-        DWARF_BAD_REQUEST_EXCEPTION.BULL_MISSING_DATA_LOGIN,
+        USER_BAD_REQUEST_EXCEPTION.BULL_MISSING_DATA_LOGIN,
       );
 
     await this.browserService.waitForBrowser({ email: job?.data?.email });
@@ -57,7 +58,7 @@ export class UserConsumer {
   async doCsvActions(job: Job<IBullCsvActionInputData>) {
     if (!job.data || !job.data.email || job.data?.csvRows.length <= 0)
       throw new BadRequestException(
-        DWARF_BAD_REQUEST_EXCEPTION.BULL_MISSING_DATA_LOGIN,
+        USER_BAD_REQUEST_EXCEPTION.BULL_MISSING_DATA_LOGIN,
       );
 
     const page = await this.browserService.getPage({email: job.data.email})

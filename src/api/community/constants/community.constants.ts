@@ -1,6 +1,5 @@
 export enum COMMUNITY_INTERNAL_SERVER_ERRORS {
-    CANNOT_START_BROWSER,
-    CANNOT_OPEN_PAGE
+
 }
 
 export enum COMMUNITY_BAD_REQUEST_ERRORS {
@@ -24,4 +23,9 @@ export enum COMMUNITY_SELECTORS {
     PAGE_USER_SECTIONS_HOT_BUTTON = "div._2pUO1Sfe7WlIHvq6goN3Pz > a:nth-child(1)",
     PAGE_USER_SECTIONS_TOP_BUTTON = "div._2pUO1Sfe7WlIHvq6goN3Pz > a:nth-child(2)",
     PAGE_USER_SECTIONS_NEW_BUTTON = "div._2pUO1Sfe7WlIHvq6goN3Pz > a:nth-child(3)",
+}
+
+export enum COMMUNITY_BULL {
+    NAME = 'community-bull',
+    CREATE_COMMUNITY = 'create-community'
 }

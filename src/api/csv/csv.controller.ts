@@ -1,10 +1,13 @@
-import { Body, Controller, Get, Post, Res, UploadedFile, UseInterceptors, UsePipes } from '@nestjs/common';
+import { Body, Controller, Get, Header, Post, Res, UploadedFile, UseInterceptors, UsePipes } from '@nestjs/common';
 import { CsvService } from './csv.service';
-import { ApiConsumes, ApiTags } from '@nestjs/swagger';
+import { ApiConsumes, ApiOkResponse, ApiProduces, ApiTags } from '@nestjs/swagger';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ParseCSVFileDto } from './dto/parse-csv-file.dto';
 import { CreateCsvFile } from './dto/create-csv-file.dto';
 import { Response } from 'express';
+import { ParseOkResponse } from './dto/ok-response/parse-ok-response.dto';
+import { CreateOkResponse } from './dto/ok-response/create-ok-response.dto';
+import { BaseFormatInterceptor } from 'src/common/interceptors/base-format.interceptor';
 
 @ApiTags('csv')
 @Controller('csv')
@@ -13,7 +16,8 @@ export class CsvController {
 
   @Post('parse')
   @ApiConsumes('multipart/form-data')
-  @UseInterceptors(FileInterceptor('file'))
+  @ApiOkResponse({type: ParseOkResponse})
+  @UseInterceptors(FileInterceptor('file'), BaseFormatInterceptor)
   async parse(
     @UploadedFile() file: Express.Multer.File,
     @Body() dto: ParseCSVFileDto
@@ -22,6 +26,8 @@ export class CsvController {
   }
 
   @Post('')
+  @ApiOkResponse({type: CreateOkResponse})
+  @ApiProduces('multipart/form-data')
   async create(
     @Body() dto: CreateCsvFile,
     @Res() res: Response

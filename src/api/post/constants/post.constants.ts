@@ -1,6 +1,4 @@
 export enum POST_INTERNAL_SERVER_ERRORS {
-  CANNOT_START_BROWSER,
-  CANNOT_OPEN_PAGE,
 }
 
 export enum POST_BAD_REQUEST_ERRORS {}
@@ -30,3 +28,4 @@ export enum POST_SELECTORS {
   FORM_CREATE_POST_BUTTON = "button._18Bo5Wuo3tMV-RDB8-kh8Z._1_Xn_Na9NfUSd_yoc1w2Eb._2iuoyPiKHN3kfOoeIQalDT._10BQ7pjWbeYP63SAPNS8Ts.HNozj_dKjQZ59ZsfEegz8",
 }
 
+export enum POST_BULL { NAME = 'post-bull', CREATE_POST = 'create-post'}

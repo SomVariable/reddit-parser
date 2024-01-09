@@ -9,7 +9,7 @@ export class BullOkResponseDto implements IBullType {
   })
   id: JobId;
   @ApiProperty({
-    example: BULL.NAME,
+    example: 'bull-name',
   })
   name: string;
   @ApiProperty({

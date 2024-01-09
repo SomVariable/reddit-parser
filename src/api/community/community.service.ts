@@ -1,17 +1,27 @@
 import { BadRequestException, Inject, Injectable } from '@nestjs/common';
 import { CreateCommunityDto } from './dto/create-community.dto';
 import { BrowserService } from '../browser/browser.service';
-import { COMMUNITY_SELECTORS } from './constants/community.constants';
+import { COMMUNITY_BULL, COMMUNITY_SELECTORS } from './constants/community.constants';
 import { COMMUNITY_TYPE } from './types/community.types';
 import { waitForTimeout } from '../user/actions/user.actions';
 import { Page } from 'puppeteer';
 import { checkForBanHelper } from 'src/common/helper/check-ban.helper';
+import { Queue } from 'bull';
+import { InjectQueue } from '@nestjs/bull';
 
 @Injectable()
 export class CommunityService {
-  constructor(private readonly browserService: BrowserService) {}
+  constructor(
+    private readonly browserService: BrowserService,
+    @InjectQueue(COMMUNITY_BULL.NAME) private communityQueue: Queue) {}
+  async createCommunity(dto: CreateCommunityDto) {
+    const _ = await this.communityQueue.add(COMMUNITY_BULL.CREATE_COMMUNITY, {dto})
+    const {id, data, name} = _
 
-  async createCommunity({
+    return {id, data, name}
+  }
+
+  async queueCreateCommunity({
     title,
     email,
     type,

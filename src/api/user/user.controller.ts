@@ -15,7 +15,7 @@ import {
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-puppeteer.dto';
 import { UpdateUserDto } from './dto/update-puppeteer.dto';
-import { ApiConsumes, ApiTags } from '@nestjs/swagger';
+import { ApiBadRequestResponse, ApiConsumes, ApiInternalServerErrorResponse, ApiOkResponse, ApiTags } from '@nestjs/swagger';
 import { LoginUserDto } from './dto/login-user.dto';
 import { BrowserSessionDto } from 'src/api/browser/dto/browser-session.dto';
 import { BrowserGuard } from '../browser/guards/browser.guard';
@@ -23,9 +23,17 @@ import { PageGuard } from '../browser/guards/page.guard';
 import { Response } from 'express';
 import { ParseCSVFileDto } from '../csv/dto/parse-csv-file.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
+import { UserBadRequestDto } from './dto/user-bad-request-response.dto';
+import { UserInternalServerErrorDto } from './dto/user-internal-server-error-response.dto';
+import { BullOkResponseDto } from 'src/common/dto/response/bull-ok-response.dto';
+import { UserReturnOkResponseDto } from './dto/ok-response/user-return-ok-response.dto';
+import { BaseFormatInterceptor } from 'src/common/interceptors/base-format.interceptor';
 
 @ApiTags('user')
+@ApiBadRequestResponse({type: UserBadRequestDto})
+@ApiInternalServerErrorResponse({type: UserInternalServerErrorDto})
 @Controller('user')
+@UseInterceptors()
 export class UserController {
   constructor(
     private readonly userService: UserService,
@@ -33,42 +41,47 @@ export class UserController {
   ) {}
 
   @Get('users')
-  @UseGuards(BrowserGuard, PageGuard)
+  @ApiOkResponse({type: UserReturnOkResponseDto})
+  @UseInterceptors( BaseFormatInterceptor)
   async getUsers() {
     return await this.fileService.getUsersData();
   }
 
-  @Post('login-user')
-  //@UseGuards(BrowserGuard, PageGuard)
+  @Post('bot/login-user')
+  @ApiOkResponse({type: BullOkResponseDto})
+  @UseGuards(BrowserGuard, PageGuard)
   async loginUser(@Body() data: LoginUserDto) {
     return await this.userService.loginUser(data);
   }
 
-  @Post('emit-activity/:email')
+  @Post('bot/:email/emit-activity')
+  @ApiOkResponse({type: BullOkResponseDto})
   @UseGuards(BrowserGuard, PageGuard)
   async emitActivity(@Param('email') data: BrowserSessionDto) {
     await this.userService.emitActivity(data.email);
+
+    return true
   }
 
-  @Post('do-csv-actions/:email')
+  @Post('bot/:email/csv-actions/start')
   @ApiConsumes('multipart/form-data')
+  @ApiOkResponse({type: BullOkResponseDto})
   @UseInterceptors(FileInterceptor('file'))
- // @UseGuards(BrowserGuard, PageGuard)
+  @UseGuards(BrowserGuard, PageGuard)
   async doCsvActions(
     @Param() browserSession: BrowserSessionDto,
     @Body() body: ParseCSVFileDto,
     @UploadedFile() file: Express.Multer.File,
   ) {
-    console.log(browserSession)
-    console.log(body)
-    console.log(file)
-    
-    await this.userService.startCsvAction(browserSession, file);
+    return await this.userService.startCsvAction(browserSession, file)
   }
 
-  @Post('stop-activity/:email')
+  @Post('bot/:email/emit-activity/stop')
+  @ApiOkResponse({type: BullOkResponseDto})
   @UseGuards(BrowserGuard, PageGuard)
   async stopActivity(@Param('email') data: BrowserSessionDto) {
     await this.userService.stopActivity(data.email);
+
+    return true
   }
 }

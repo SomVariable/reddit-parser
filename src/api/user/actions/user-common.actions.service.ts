@@ -5,7 +5,8 @@ import {
 } from '@nestjs/common';
 import  { Page } from 'puppeteer';
 import { BrowserService } from 'src/api/browser/browser.service';
-import { DWARF_SELECTORS, UserAction, UserActionWeight, IUserActions } from '../types/user.types';
+import {  UserAction,  IUserActions } from '../types/user.types';
+import { USER_SELECTORS, UserActionWeight } from '../constants/user.constants';
 
 @Injectable()
 export class UserCommonActionsService {
@@ -49,15 +50,15 @@ export class UserCommonActionsService {
   doNothing() {}
 
   async goToTheCommunity(page: Page, communityName: string = '') {
-    await page.waitForSelector(DWARF_SELECTORS.HOME_BUTTON);
-    await page.click(DWARF_SELECTORS.HOME_BUTTON);
-    await page.waitForSelector(DWARF_SELECTORS.FILTER_COMMUNITY);
-    await page.type(DWARF_SELECTORS.FILTER_COMMUNITY, communityName);
-    await page.waitForSelector(DWARF_SELECTORS.YOUR_COMMUNITY);
+    await page.waitForSelector(USER_SELECTORS.HOME_BUTTON);
+    await page.click(USER_SELECTORS.HOME_BUTTON);
+    await page.waitForSelector(USER_SELECTORS.FILTER_COMMUNITY);
+    await page.type(USER_SELECTORS.FILTER_COMMUNITY, communityName);
+    await page.waitForSelector(USER_SELECTORS.YOUR_COMMUNITY);
 
-    await page.evaluate((DWARF_SELECTORS) => {
+    await page.evaluate((USER_SELECTORS) => {
       const elementsNodeList = document.querySelectorAll(
-        DWARF_SELECTORS.YOUR_COMMUNITY,
+        USER_SELECTORS.YOUR_COMMUNITY,
       );
       const elements = Array.from(elementsNodeList);
       const elementId = communityName
@@ -69,6 +70,6 @@ export class UserCommonActionsService {
         throw new InternalServerErrorException('problem with community');
       }
       return true;
-    }, DWARF_SELECTORS);
+    }, USER_SELECTORS);
   }
 }

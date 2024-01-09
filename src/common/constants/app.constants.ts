@@ -1,3 +1,5 @@
+import { IBullType } from "src/api/kv-store/kv-types/kv-store.type";
+
 export enum APP_ERRORS {}
 
 export enum BAD_REQUEST_ERRORS {
@@ -16,3 +18,11 @@ export const UNIQUE_MESSAGE = {
   statusCode: 409,
   message: '[P2002]: Unique constraint failed on the (not available)',
 };
+
+export const bullReturnExample: IBullType = {
+  id: 1,
+  data: {
+    email: 'som-email@gmail.com'
+  },
+  name: 'bull-name'
+}

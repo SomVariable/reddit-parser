@@ -12,24 +12,23 @@ import path from 'path';
 import puppeteer, { Page } from 'puppeteer';
 import {
   ACTIVITY_INTERVAL,
+  USER_BAD_REQUEST_EXCEPTION,
+  USER_BULL,
+  USER_SELECTORS,
   VIEW_PORT_SETTING,
 } from './constants/user.constants';
 import { User } from '@prisma/client';
 import { REDDIT_SRC } from 'src/common/constants/app.constants';
 import { LoginUserDto } from './dto/login-user.dto';
-import {
-  DWARF_BAD_REQUEST_EXCEPTION,
-  DWARF_SELECTORS,
-  USER_BULL,
-} from './types/user.types';
 import { waitForTimeout } from './actions/user.actions';
-import { BROWSER_BAD_REQUEST_ERRORS } from '../browser/constants/browser.constants';
+import { BROWSER_BAD_REQUEST_ERRORS, BULL } from '../browser/constants/browser.constants';
 import { Queue } from 'bull';
 import { InjectQueue } from '@nestjs/bull';
 import { BrowserSessionDto } from '../browser/dto/browser-session.dto';
 import { checkForBanHelper } from 'src/common/helper/check-ban.helper';
 import { CsvRow } from '../csv/types/csv.types';
 import { FileService } from '../file/file.service';
+import { IBullType } from '../kv-store/kv-types/kv-store.type';
 
 @Injectable()
 export class UserService {
@@ -57,7 +56,7 @@ export class UserService {
     const actions = this.userCommonActionsService.getActions();
     if (this.intervals[email]) {
       throw new BadRequestException(
-        DWARF_BAD_REQUEST_EXCEPTION.CREATE_EXISTING_ACTIVITY,
+        USER_BAD_REQUEST_EXCEPTION.CREATE_EXISTING_ACTIVITY,
       );
     }
 
@@ -81,7 +80,7 @@ export class UserService {
   async stopActivity(email: string) {
     if (!this.intervals[email]) {
       throw new BadRequestException(
-        DWARF_BAD_REQUEST_EXCEPTION.MISSING_ACTIVITY,
+        USER_BAD_REQUEST_EXCEPTION.MISSING_ACTIVITY,
       );
     }
 
@@ -113,18 +112,18 @@ export class UserService {
 
       await page.goto(REDDIT_SRC);
       await page.setViewport(VIEW_PORT_SETTING);
-      await page.waitForSelector(DWARF_SELECTORS.LOGIN_BUTTON);
-      await page.click(DWARF_SELECTORS.LOGIN_BUTTON);
-      await page.waitForSelector(DWARF_SELECTORS.LOGIN);
-      await page.click(DWARF_SELECTORS.LOGIN);
-      await page.type(DWARF_SELECTORS.LOGIN, user.login);
-      await page.waitForSelector(DWARF_SELECTORS.PASSWORD);
-      await page.click(DWARF_SELECTORS.PASSWORD);
-      await page.type(DWARF_SELECTORS.PASSWORD, user.password);
+      await page.waitForSelector(USER_SELECTORS.LOGIN_BUTTON);
+      await page.click(USER_SELECTORS.LOGIN_BUTTON);
+      await page.waitForSelector(USER_SELECTORS.LOGIN);
+      await page.click(USER_SELECTORS.LOGIN);
+      await page.type(USER_SELECTORS.LOGIN, user.login);
+      await page.waitForSelector(USER_SELECTORS.PASSWORD);
+      await page.click(USER_SELECTORS.PASSWORD);
+      await page.type(USER_SELECTORS.PASSWORD, user.password);
       await waitForTimeout(1000);
       await page.evaluate(this._popUpLoginButtonClick);
       await checkForBanHelper(page);
-      await page.waitForSelector(DWARF_SELECTORS.BLACK_WINDOW);
+      await page.waitForSelector(USER_SELECTORS.BLACK_WINDOW);
       await page.click('body');
       this.loggedInUsers.push(user.email);
 
@@ -138,7 +137,7 @@ export class UserService {
     while (!this.loggedInUsers.find((email) => email === dto.email)) {
       // add som system to send this data to user
       console.log(
-        `${DWARF_BAD_REQUEST_EXCEPTION.BULL_MISSING_LOGGED_IN_USER}  ${dto.email}`,
+        `${USER_BAD_REQUEST_EXCEPTION.BULL_MISSING_LOGGED_IN_USER}  ${dto.email}`,
       );
       await waitForTimeout(20000);
     }
@@ -147,15 +146,12 @@ export class UserService {
   async startCsvAction(
     {email}: BrowserSessionDto,
     csvFile: Express.Multer.File,
-  ) {
+  ): Promise<IBullType> {
     const csvRows = await this.csvService.parseCsvFile(csvFile);
     const result = await this.userQueue.add(USER_BULL.EMIT_ACTIVITY, { email, data: csvRows });
     const { id, data, name } = result;
 
     return { id, data, name };
-
-
-    return data;
   }
 
   async queueDoActionByCsvRow(
@@ -166,7 +162,7 @@ export class UserService {
     await this.userCommonActionsService.goToTheCommunity(page, subreddit);
     const title = await this.fileService.parseTagFile(tag);
     console.log(title);
-    await this.postService.createPost({
+    await this.postService.queueCreatePost({
       email: browserSession.email,
       text: comment,
       title: `${title} ${AdditionalInfo}`,
@@ -217,10 +213,10 @@ export class UserService {
 
 //     await page.goto(REDDIT_SRC);
 //     await page.setViewport(VIEW_PORT_SETTING);
-//     await page.waitForSelector(DWARF_SELECTORS.LOGIN_BUTTON);
-//     await page.click(DWARF_SELECTORS.LOGIN_BUTTON);
+//     await page.waitForSelector(USER_SELECTORS.LOGIN_BUTTON);
+//     await page.click(USER_SELECTORS.LOGIN_BUTTON);
 
-//     //await page.waitForSelector(DWARF_SELECTORS.SIGN_UP)
+//     //await page.waitForSelector(USER_SELECTORS.SIGN_UP)
 //     await new Promise((r) => setTimeout(r, 2000));
 
 //     await page.evaluate(this._signUpContinueButtonClick);

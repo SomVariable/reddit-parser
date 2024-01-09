@@ -23,7 +23,6 @@ export class CsvService {
           .pipe(converterStream)
           .pipe(csv({ separator: ';' }))
           .on('data', (rowCsvFileFormat: CsvFileFormatRow) => {
-            console.log(rowCsvFileFormat)
             const rowCsvFormat: CsvRow = {
               subreddit: rowCsvFileFormat[CsvRowFileFormat.subreddit],
               postCount: rowCsvFileFormat[CsvRowFileFormat.postCount],

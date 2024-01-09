@@ -5,6 +5,7 @@ export class BrowserBadRequestDto {
   @ApiProperty({
     type: BROWSER_BAD_REQUEST_ERRORS,
     enum: BROWSER_BAD_REQUEST_ERRORS,
+    example: BROWSER_BAD_REQUEST_ERRORS,
   })
   message: string;
 }
