@@ -55,24 +55,23 @@ export class UserService {
         USER_BAD_REQUEST_EXCEPTION.MISSING_USERS_EMAILS,
       );
 
-    dto.emails.forEach(async email => {
-      const user = await this.fileService.getUserData({email})
-      
+    dto.emails.forEach(async (email) => {
+      const user = await this.fileService.getUserData({ email });
+
       // browser action
-      await this.browserService.startBrowser({email})
-      await this.browserService.startPage({email})
+      await this.browserService.startBrowser({ email });
+      await this.browserService.startPage({ email });
 
       // user action
       await this.loginUser({
-        ...user
-      })
+        ...user,
+      });
 
-      await this.emitActivity({email})
-
-    })
+      await this.emitActivity({ email });
+    });
   }
 
-  async emitActivity({email}: BrowserSessionDto) {
+  async emitActivity({ email }: BrowserSessionDto) {
     const result = await this.userQueue.add(USER_BULL.EMIT_ACTIVITY, { email });
     const { id, data, name } = result;
 
@@ -131,6 +130,10 @@ export class UserService {
         email: user.email,
       });
 
+      const userFileData = await this.fileService.getUserData({
+        email: user.email,
+      });
+
       if (!page) {
         throw new BadRequestException(
           BROWSER_BAD_REQUEST_ERRORS.MISSING_BROWSER,
@@ -153,7 +156,7 @@ export class UserService {
       await page.waitForSelector(USER_SELECTORS.BLACK_WINDOW);
       await page.click('body');
       this.loggedInUsers.push(user.email);
-
+      await this.fileService.addLoggedInUser({ ...userFileData });
       return true;
     } catch (error) {
       throw new InternalServerErrorException(error);
@@ -162,11 +165,11 @@ export class UserService {
 
   async waitForUser(dto: BrowserSessionDto) {
     while (!this.loggedInUsers.find((email) => email === dto.email)) {
-      // add som system to send this data to user
-      console.log(
-        `${USER_BAD_REQUEST_EXCEPTION.BULL_MISSING_LOGGED_IN_USER}  ${dto.email}`,
-      );
-      await waitForTimeout(20000);
+      await this.fileService.addReport({
+        message: `${USER_BAD_REQUEST_EXCEPTION.BULL_MISSING_LOGGED_IN_USER}  ${dto.email}`,
+      });
+
+      await waitForTimeout(200000);
     }
   }
 
@@ -193,6 +196,7 @@ export class UserService {
     const title = await this.fileService.parseTagFile(tag);
     console.log(title);
     await this.postService.queueCreatePost({
+      subreddit,
       email: browserSession.email,
       text: comment,
       title: `${title} ${AdditionalInfo}`,

@@ -1,7 +1,12 @@
 export enum POST_INTERNAL_SERVER_ERRORS {
+  UNEXPECTED = 'unexpected error'
 }
 
-export enum POST_BAD_REQUEST_ERRORS {}
+export enum POST_BAD_REQUEST_ERRORS {
+  MISSING_BROWSER = 'no browser for this user. Open it',
+  MISSING_PAGE = 'no page for this user. Open it',
+  MISSING_FLAIR = 'there is no such flair'
+}
 
 export enum POST_SELECTORS {
   FORM_SECTION_POST = "div._3vyt9N_0jfZuOwByiKDi9x > div > button:nth-child(1)",

@@ -7,6 +7,7 @@ export enum BROWSER_BAD_REQUEST_ERRORS {
   MISSING_PAGE = 'there is no pages for this this user. Open it',
   MISSING_BROWSER = 'there is no browser for this user. Open it',
   MISSING_PROXY = 'there is no proxy for this user',
+  INVALID_USER = 'missing user'
 }
 
 export enum BROWSER_SELECTORS {

@@ -1,3 +1,4 @@
+import { FileService } from './../../file/file.service';
 import {
   OnQueueCompleted,
   OnQueueFailed,
@@ -14,7 +15,9 @@ import { BrowserSessionDto } from '../dto/browser-session.dto';
 
 @Processor(BULL.NAME)
 export class BrowserConsumer {
-  constructor(private readonly service: BrowserService) {}
+  constructor(
+    private readonly service: BrowserService,
+    private readonly fileService: FileService) {}
 
   @Process(BULL.START_BROWSER_PROCESS)
   async startBrowser(job: Job<BrowserSessionDto>) {
@@ -26,9 +29,8 @@ export class BrowserConsumer {
   @Process(BULL.START_PAGE_PROCESS)
   async startPage(job: Job<BrowserSessionDto>) {
     while( !this.service.getBrowser(job.data)) {
-        // add som system to send this data to user
-        console.log(`${BROWSER_BULL_MESSAGES.MISSING_BROWSER}  ${job.data.email}`)
-        await waitForTimeout(5000)
+        await this.fileService.addReport({message: `${BROWSER_BULL_MESSAGES.MISSING_BROWSER}  ${job.data.email}`})
+        await waitForTimeout(100000)
     } 
     await this.service.queueOpenNewPage(job.data);
 

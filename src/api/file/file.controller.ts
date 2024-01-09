@@ -1,9 +1,18 @@
-import { Controller, Get, Post, Body, Patch, Param } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  UseInterceptors,
+} from '@nestjs/common';
 import { FileService } from './file.service';
 import { AddUserToFileDto } from './dto/add-user-to-file.dto';
 import {
   ApiBadRequestResponse,
   ApiInternalServerErrorResponse,
+  ApiOkResponse,
   ApiTags,
 } from '@nestjs/swagger';
 import { AddProxyDto } from './dto/add-proxy.dto';
@@ -11,6 +20,10 @@ import { UpdateFileUser } from './dto/update-file-user.dto';
 import { BrowserSessionDto } from '../browser/dto/browser-session.dto';
 import { FileBadRequestResponseDto } from './dto/file-bad-request-response.dto';
 import { FileInternalServerErrorDto } from './dto/file-internal-server-error-response.dto';
+import { BaseFormatInterceptor } from 'src/common/interceptors/base-format.interceptor';
+import { GetUsersDataResponseDto } from './dto/ok-response/get-user-data-response.dto';
+import { GetUsersEmailsResponseDto } from './dto/ok-response/get-users-email-response.dto';
+import { UpdateUserResponseDto } from './dto/ok-response/update-user-response.dto';
 
 @ApiTags('file')
 @ApiBadRequestResponse({ type: FileBadRequestResponseDto })
@@ -20,11 +33,15 @@ export class FileController {
   constructor(private readonly fileService: FileService) {}
 
   @Get('users')
+  @ApiOkResponse({ type: GetUsersDataResponseDto })
+  @UseInterceptors(BaseFormatInterceptor)
   async getData() {
     return await this.fileService.getUsersData();
   }
-  
+
   @Get('users/emails')
+  @ApiOkResponse({ type: GetUsersEmailsResponseDto })
+  @UseInterceptors(BaseFormatInterceptor)
   async getUsersEmails() {
     return await this.fileService.getUsersEmails();
   }
@@ -50,12 +67,12 @@ export class FileController {
   }
 
   @Patch(':email')
+  @ApiOkResponse({ type: UpdateUserResponseDto })
+  @UseInterceptors(BaseFormatInterceptor)
   async updateFileUser(
     @Param() paramDto: BrowserSessionDto,
     @Body() fileData: UpdateFileUser,
   ) {
     return await this.fileService.updateUserFileData(paramDto.email, fileData);
   }
-
-
 }

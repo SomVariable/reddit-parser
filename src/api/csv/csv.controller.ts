@@ -1,6 +1,6 @@
 import { Body, Controller, Get, Header, Post, Res, UploadedFile, UseInterceptors, UsePipes } from '@nestjs/common';
 import { CsvService } from './csv.service';
-import { ApiConsumes, ApiOkResponse, ApiProduces, ApiTags } from '@nestjs/swagger';
+import { ApiBadRequestResponse, ApiConsumes, ApiInternalServerErrorResponse, ApiOkResponse, ApiProduces, ApiTags } from '@nestjs/swagger';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ParseCSVFileDto } from './dto/parse-csv-file.dto';
 import { CreateCsvFile } from './dto/create-csv-file.dto';
@@ -8,8 +8,12 @@ import { Response } from 'express';
 import { ParseOkResponse } from './dto/ok-response/parse-ok-response.dto';
 import { CreateOkResponse } from './dto/ok-response/create-ok-response.dto';
 import { BaseFormatInterceptor } from 'src/common/interceptors/base-format.interceptor';
+import { CsvBadRequestDto } from './dto/csv-bad-request-response.dto';
+import { CsvInternalServerErrorDto } from './dto/csv-internal-server-error-response.dto';
 
 @ApiTags('csv')
+@ApiBadRequestResponse({type: CsvBadRequestDto})
+@ApiInternalServerErrorResponse({type: CsvInternalServerErrorDto})
 @Controller('csv')
 export class CsvController {
   constructor(private readonly csvService: CsvService) {}

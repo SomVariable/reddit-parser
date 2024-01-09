@@ -5,7 +5,12 @@ import {
 } from '@nestjs/common';
 import { BrowserService } from '../browser/browser.service';
 import { CreatePostDto } from './dto/create-post.dto';
-import { POST_BULL, POST_SELECTORS } from './constants/post.constants';
+import {
+  POST_BAD_REQUEST_ERRORS,
+  POST_BULL,
+  POST_INTERNAL_SERVER_ERRORS,
+  POST_SELECTORS,
+} from './constants/post.constants';
 import { COMMUNITY_SELECTORS } from '../community/constants/community.constants';
 import {
   IFlair,
@@ -22,33 +27,48 @@ import * as path from 'path';
 import * as fs from 'fs';
 import { Queue } from 'bull';
 import { InjectQueue } from '@nestjs/bull';
+import { FileService } from '../file/file.service';
 
 @Injectable()
 export class PostService {
-  constructor(private readonly browserService: BrowserService,
-    @InjectQueue(POST_BULL.NAME) private postQueue: Queue) {}
+  constructor(
+    private readonly browserService: BrowserService,
+    private readonly fileService: FileService,
+    @InjectQueue(POST_BULL.NAME) private postQueue: Queue,
+  ) {}
 
   async createPost(dto: CreatePostDto, file?: Express.Multer.File) {
-    const _ = await this.postQueue.add(POST_BULL.CREATE_POST, {
+    const job = await this.postQueue.add(POST_BULL.CREATE_POST, {
       data: {
-        dto, file
-      }
-    })
-    const {data, id, name} = _
-    
-    return {data, id, name}
+        dto,
+        file,
+      },
+    });
+    const { data, id, name } = job;
+
+    return { data, id, name };
   }
 
   async queueCreatePost(dto: CreatePostDto, file?: Express.Multer.File) {
     if (!this.browserService.getBrowser({ email: dto.email })) {
-      throw new BadRequestException(BROWSER_BAD_REQUEST_ERRORS.MISSING_BROWSER);
+      throw new BadRequestException(POST_BAD_REQUEST_ERRORS.MISSING_BROWSER);
     }
 
     if (!this.browserService.getPage({ email: dto.email })) {
-      throw new BadRequestException(BROWSER_BAD_REQUEST_ERRORS.MISSING_PAGE);
+      throw new BadRequestException(POST_BAD_REQUEST_ERRORS.MISSING_PAGE);
     }
 
-    const { email, isNsfw, options, isSpoiler, text, title, url, flair } = dto;
+    const {
+      email,
+      isNsfw,
+      options,
+      isSpoiler,
+      text,
+      title,
+      url,
+      flair,
+      subreddit,
+    } = dto;
     const page = await this.browserService.getPage({ email });
     // go to post creation form
     await page.waitForSelector(
@@ -63,7 +83,7 @@ export class PostService {
       isSpoiler,
       text,
     });
-    await this.addFlair(page, {flair})
+    await this.addFlair(page, { flair });
     await this.fillLinkSection(page, { url });
     await this.fillPollSection(page, { options });
     await waitForTimeout(500);
@@ -71,21 +91,39 @@ export class PostService {
     await waitForTimeout(500);
     await page.waitForSelector(POST_SELECTORS.FORM_CREATE_POST_BUTTON);
     await page.click(POST_SELECTORS.FORM_CREATE_POST_BUTTON);
+
+    await this.fileService.addTemp({
+      subreddit,
+      title,
+      imageName: file?.filename,
+    });
   }
 
-  async addFlair(page: Page, {flair}: IFlair) {
-    await page.waitForSelector(POST_SELECTORS.FORM_SECTION_POST_FLAIR_ADD_FLAIR_BUTTON)
-    await page.click(POST_SELECTORS.FORM_SECTION_POST_FLAIR_ADD_FLAIR_BUTTON)
-    
-    await page.waitForSelector(POST_SELECTORS.FORM_SECTION_POST_FLAIR_ADD_FLAIR_INPUT)
-    await page.type(POST_SELECTORS.FORM_SECTION_POST_FLAIR_ADD_FLAIR_INPUT, flair)
-    const flairElement = await page.$(POST_SELECTORS.FORM_SECTION_POST_FLAIR_ADD_FLAIR_FOUND_ELEMENT)
+  async addFlair(page: Page, { flair }: IFlair) {
+    await page.waitForSelector(
+      POST_SELECTORS.FORM_SECTION_POST_FLAIR_ADD_FLAIR_BUTTON,
+    );
+    await page.click(POST_SELECTORS.FORM_SECTION_POST_FLAIR_ADD_FLAIR_BUTTON);
 
-    if(!flairElement) throw new BadRequestException('there is no such flair')
+    await page.waitForSelector(
+      POST_SELECTORS.FORM_SECTION_POST_FLAIR_ADD_FLAIR_INPUT,
+    );
+    await page.type(
+      POST_SELECTORS.FORM_SECTION_POST_FLAIR_ADD_FLAIR_INPUT,
+      flair,
+    );
+    const flairElement = await page.$(
+      POST_SELECTORS.FORM_SECTION_POST_FLAIR_ADD_FLAIR_FOUND_ELEMENT,
+    );
 
-    await flairElement.click()
-    await page.click(POST_SELECTORS.FORM_SECTION_POST_FLAIR_ADD_FLAIR_APPLY_BUTTON)
-    await waitForTimeout(1000)
+    if (!flairElement)
+      throw new BadRequestException(POST_BAD_REQUEST_ERRORS.MISSING_FLAIR);
+
+    await flairElement.click();
+    await page.click(
+      POST_SELECTORS.FORM_SECTION_POST_FLAIR_ADD_FLAIR_APPLY_BUTTON,
+    );
+    await waitForTimeout(1000);
   }
 
   async fillPostSection(
@@ -121,7 +159,9 @@ export class PostService {
     );
     await fs.writeFile(filePath, dto.file.buffer, (err) => {
       if (err)
-        throw new InternalServerErrorException(`something wrong.\n ${err}`);
+        throw new InternalServerErrorException(
+          err.message || POST_INTERNAL_SERVER_ERRORS.UNEXPECTED,
+        );
     });
 
     const [fileChooser] = await Promise.all([

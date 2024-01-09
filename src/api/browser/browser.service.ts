@@ -50,6 +50,8 @@ export class BrowserService {
     try {
       const user = await this.fileService.getUserData(dto);
 
+      if (!user) throw new BadRequestException(BROWSER_BAD_REQUEST_ERRORS.INVALID_USER);
+
       const StealthPlugin = require('puppeteer-extra-plugin-stealth');
 
       puppeteerExtra.use(StealthPlugin());
@@ -63,9 +65,9 @@ export class BrowserService {
       }
 
       const proxyData = this.fileService.parseProxy(user.proxy);
-      // puppeteerExtra.use(
-      //   pluginProxy({ proxy: proxyData.proxy, port: proxyData.port }),
-      // );
+      puppeteerExtra.use(
+        pluginProxy({ proxy: proxyData.proxy, port: proxyData.port }),
+      );
 
       const browser = await puppeteerExtra.launch({
         headless: false,
@@ -90,7 +92,7 @@ export class BrowserService {
     try {
       const page = await this.getBrowser({ email: dto.email }).newPage();
 
-      page.goto('https://www.reddit.com/');
+      await page.goto('https://www.reddit.com/');
 
       this.pages[dto.email] = page;
       return page;
@@ -116,23 +118,30 @@ export class BrowserService {
     return this.pages[email];
   }
 
+  async closeBrowser(dto: BrowserSessionDto) {
+    const browser = this.getBrowser(dto);
+    if (browser) {
+      await browser.close();
+      delete this.browsers[dto.email];
+    }
+  }
+
   async waitForBrowser(dto: BrowserSessionDto) {
     while (!this.getBrowser(dto)) {
-      // add som system to send this data to user
-      console.log(
-        `${BROWSER_BULL_MESSAGES.MISSING_BROWSER}  ${dto.email}`,
-      );
-      await waitForTimeout(20000);
+      await this.fileService.addReport({
+        message: `${BROWSER_BULL_MESSAGES.MISSING_BROWSER}  ${dto.email}`
+      })
+
+      await waitForTimeout(200000);
     }
     
   }
 
   async waitForPage(dto: BrowserSessionDto) {
     while (!this.getPage(dto)) {
-      // add som system to send this data to user
-      console.log(
-        `${BROWSER_BULL_MESSAGES.MISSING_PAGE}  ${dto.email}`,
-      );
+      await this.fileService.addReport({
+        message: `${BROWSER_BULL_MESSAGES.MISSING_PAGE}  ${dto.email}`
+      })
       await waitForTimeout(20000);
     }
   }

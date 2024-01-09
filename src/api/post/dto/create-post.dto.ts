@@ -28,6 +28,13 @@ export class CreatePostDto
     IImagesVideosSection,
     IFlair
 {
+
+  @ApiProperty()
+  @IsString()
+  @IsNotEmpty()
+  @Length(1, 300)
+  subreddit: string;
+
   @ApiProperty()
   @IsString()
   @IsNotEmpty()

@@ -33,7 +33,10 @@ export class FileService {
       'payload/Content/Titles',
       `${fileName}.txt`,
     );
-    console.log(fileDir);
+    const isFile = !!(await fs.stat(fileDir).catch((e) => false));
+
+    if(!isFile) throw new BadRequestException(FILE_BAD_REQUEST_ERRORS.MISSING_FILE)
+
     const fileInfo = await fs.readFile(fileDir, 'utf-8');
     const fileData = fileInfo.split('\r\n');
 
@@ -76,7 +79,7 @@ export class FileService {
     );
     const users = this._fileFormatToArray(fileFormatUsers);
 
-    return users.map(user => user.email);
+    return users.map((user) => user.email);
   }
 
   async getUserData({ email, ...dto }: BrowserSessionDto) {
@@ -126,25 +129,30 @@ export class FileService {
   }
 
   async addReport(dto: AddReportDto) {
-    if(await !this._checkReportDir()) {
-      await fs.mkdir(path.join(process.cwd(), FILE_PATH.REPORT))
+    if (await !this._checkReportDir()) {
+      await fs.mkdir(path.join(process.cwd(), FILE_PATH.REPORT));
     }
 
-    if(!dto.message) throw new BadRequestException(FILE_BAD_REQUEST_ERRORS.MISSING_DTO)
+    if (!dto.message)
+      throw new BadRequestException(FILE_BAD_REQUEST_ERRORS.MISSING_DTO);
 
-    const fileName = `${Date.now()}.txt`
-    await fs.writeFile(path.join(FILE_PATH.REPORT, fileName), dto.message)
+    const fileName = `${Date.now()}.txt`;
+    await fs.writeFile(path.join(FILE_PATH.REPORT, fileName), dto.message);
   }
 
   async addTemp(dto: AddTempDto) {
-    if(await !this._checkTempDir()) {
-      await fs.mkdir(path.join(process.cwd(), FILE_PATH.TEMP))
+    if (await !this._checkTempDir()) {
+      await fs.mkdir(path.join(process.cwd(), FILE_PATH.TEMP));
     }
 
-    if(!dto.message) throw new BadRequestException(FILE_BAD_REQUEST_ERRORS.MISSING_DTO)
+    if (!dto.subreddit || !dto.title)
+      throw new BadRequestException(FILE_BAD_REQUEST_ERRORS.MISSING_DTO);
 
-    const fileName = `${Date.now()}.txt`
-    await fs.writeFile(path.join(FILE_PATH.TEMP, fileName), dto.message)
+    const fileName = `${Date.now()}.txt`;
+    await fs.writeFile(
+      path.join(FILE_PATH.TEMP, fileName),
+      `${new Date()};${dto.subreddit};${dto.title};${dto.imageName}`,
+    );
   }
 
   parseProxy(proxy: string) {
@@ -208,7 +216,7 @@ export class FileService {
         }
         break;
       default: {
-        throw new BadRequestException(FILE_BAD_REQUEST_ERRORS.MISSING_FILE);
+        throw new BadRequestException(FILE_BAD_REQUEST_ERRORS.MISSING_FILE_NAME);
       }
     }
   }
