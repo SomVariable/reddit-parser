@@ -19,6 +19,16 @@ import { FileInternalServerErrorDto } from './dto/file-internal-server-error-res
 export class FileController {
   constructor(private readonly fileService: FileService) {}
 
+  @Get('users')
+  async getData() {
+    return await this.fileService.getUsersData();
+  }
+  
+  @Get('users/emails')
+  async getUsersEmails() {
+    return await this.fileService.getUsersEmails();
+  }
+
   @Post('user')
   async addNewUser(@Body() dto: AddUserToFileDto) {
     return await this.fileService.addNewUser(dto);
@@ -47,8 +57,5 @@ export class FileController {
     return await this.fileService.updateUserFileData(paramDto.email, fileData);
   }
 
-  @Get('users')
-  async getData() {
-    return await this.fileService.getUsersData();
-  }
+
 }

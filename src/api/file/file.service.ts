@@ -64,9 +64,19 @@ export class FileService {
       `payload/${FILE_NAME.ACCOUNTS}`,
       'utf-8',
     );
-    const usersString = this._fileFormatToArray(fileFormatUsers);
+    const users = this._fileFormatToArray(fileFormatUsers);
 
-    return usersString;
+    return users;
+  }
+
+  async getUsersEmails() {
+    const fileFormatUsers = await fs.readFile(
+      `payload/${FILE_NAME.ACCOUNTS}`,
+      'utf-8',
+    );
+    const users = this._fileFormatToArray(fileFormatUsers);
+
+    return users.map(user => user.email);
   }
 
   async getUserData({ email, ...dto }: BrowserSessionDto) {

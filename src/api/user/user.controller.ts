@@ -57,8 +57,8 @@ export class UserController {
   @Post('bot/:email/emit-activity')
   @ApiOkResponse({type: BullOkResponseDto})
   @UseGuards(BrowserGuard, PageGuard)
-  async emitActivity(@Param('email') data: BrowserSessionDto) {
-    await this.userService.emitActivity(data.email);
+  async emitActivity(@Param() data: BrowserSessionDto) {
+    await this.userService.emitActivity(data);
 
     return true
   }

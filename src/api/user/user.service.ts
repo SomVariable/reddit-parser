@@ -21,7 +21,10 @@ import { User } from '@prisma/client';
 import { REDDIT_SRC } from 'src/common/constants/app.constants';
 import { LoginUserDto } from './dto/login-user.dto';
 import { waitForTimeout } from './actions/user.actions';
-import { BROWSER_BAD_REQUEST_ERRORS, BULL } from '../browser/constants/browser.constants';
+import {
+  BROWSER_BAD_REQUEST_ERRORS,
+  BULL,
+} from '../browser/constants/browser.constants';
 import { Queue } from 'bull';
 import { InjectQueue } from '@nestjs/bull';
 import { BrowserSessionDto } from '../browser/dto/browser-session.dto';
@@ -29,6 +32,7 @@ import { checkForBanHelper } from 'src/common/helper/check-ban.helper';
 import { CsvRow } from '../csv/types/csv.types';
 import { FileService } from '../file/file.service';
 import { IBullType } from '../kv-store/kv-types/kv-store.type';
+import { DwarvesLetsGetToWorkDto } from './dto/dwarves-lets-get-to-work.dto';
 
 @Injectable()
 export class UserService {
@@ -45,7 +49,30 @@ export class UserService {
     @InjectQueue(USER_BULL.NAME) private userQueue: Queue,
   ) {}
 
-  async emitActivity(email: string) {
+  async dwarvesLetsGetToWork(dto: DwarvesLetsGetToWorkDto) {
+    if (!dto.emails || dto.emails.length === 0)
+      throw new BadRequestException(
+        USER_BAD_REQUEST_EXCEPTION.MISSING_USERS_EMAILS,
+      );
+
+    dto.emails.forEach(async email => {
+      const user = await this.fileService.getUserData({email})
+      
+      // browser action
+      await this.browserService.startBrowser({email})
+      await this.browserService.startPage({email})
+
+      // user action
+      await this.loginUser({
+        ...user
+      })
+
+      await this.emitActivity({email})
+
+    })
+  }
+
+  async emitActivity({email}: BrowserSessionDto) {
     const result = await this.userQueue.add(USER_BULL.EMIT_ACTIVITY, { email });
     const { id, data, name } = result;
 
@@ -144,11 +171,14 @@ export class UserService {
   }
 
   async startCsvAction(
-    {email}: BrowserSessionDto,
+    { email }: BrowserSessionDto,
     csvFile: Express.Multer.File,
   ): Promise<IBullType> {
     const csvRows = await this.csvService.parseCsvFile(csvFile);
-    const result = await this.userQueue.add(USER_BULL.EMIT_ACTIVITY, { email, data: csvRows });
+    const result = await this.userQueue.add(USER_BULL.EMIT_ACTIVITY, {
+      email,
+      data: csvRows,
+    });
     const { id, data, name } = result;
 
     return { id, data, name };

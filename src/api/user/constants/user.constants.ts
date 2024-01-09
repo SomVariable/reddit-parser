@@ -10,6 +10,7 @@ export enum UserActionWeight {
 export enum USER_BAD_REQUEST_EXCEPTION {
     CREATE_EXISTING_ACTIVITY = "there is already exist activity for this user",
     MISSING_ACTIVITY = "there no activity for this user",
+    MISSING_USERS_EMAILS = 'You need choose some emails for running users',
     BULL_MISSING_DATA_LOGIN = "there is problem with bull data for login",
     BULL_MISSING_LOGGED_IN_USER = "",
 }
