@@ -28,6 +28,7 @@ import { UserInternalServerErrorDto } from './dto/user-internal-server-error-res
 import { BullOkResponseDto } from 'src/common/dto/response/bull-ok-response.dto';
 import { UserReturnOkResponseDto } from './dto/ok-response/user-return-ok-response.dto';
 import { BaseFormatInterceptor } from 'src/common/interceptors/base-format.interceptor';
+import { DwarvesLetsGetToWorkDto } from './dto/dwarves-lets-get-to-work.dto';
 
 @ApiTags('user')
 @ApiBadRequestResponse({type: UserBadRequestDto})
@@ -45,6 +46,11 @@ export class UserController {
   @UseInterceptors( BaseFormatInterceptor)
   async getUsers() {
     return await this.fileService.getUsersData();
+  }
+
+  @Post('dwarfs-get-to-work')
+  async dwarfsGetToWork(@Body() dto: DwarvesLetsGetToWorkDto) {
+    return await this.userService.dwarvesLetsGetToWork(dto);
   }
 
   @Post('bot/login-user')

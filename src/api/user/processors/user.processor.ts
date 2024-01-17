@@ -15,6 +15,7 @@ import { BROWSER_BULL_MESSAGES } from 'src/api/browser/constants/browser.constan
 import { LoginUserDto } from '../dto/login-user.dto';
 import { BrowserSessionDto } from 'src/api/browser/dto/browser-session.dto';
 import { USER_BAD_REQUEST_EXCEPTION, USER_BULL } from '../constants/user.constants';
+import { DwarvesLetsGetToWorkDto } from '../dto/dwarves-lets-get-to-work.dto';
 
 @Processor(USER_BULL.NAME)
 export class UserConsumer {
@@ -23,8 +24,20 @@ export class UserConsumer {
     private readonly browserService: BrowserService,
   ) {}
 
+  @Process(USER_BULL.DWARFS_GET_TO_WORK)
+  async dwarfsGetToWork(job: Job<DwarvesLetsGetToWorkDto>) {
+    if (!job.data || !job.data.emails)
+      throw new BadRequestException(
+        USER_BAD_REQUEST_EXCEPTION.BULL_MISSING_DATA_LOGIN,
+      );
+
+    await this.service.queueDwarvesLetsGetToWork(job.data)
+
+    return true;
+  }
+
   @Process(USER_BULL.LOGIN)
-  async startBrowser(job: Job<LoginUserDto>) {
+  async login(job: Job<LoginUserDto>) {
     if (!job.data || !job.data.email)
       throw new BadRequestException(
         USER_BAD_REQUEST_EXCEPTION.BULL_MISSING_DATA_LOGIN,
@@ -39,7 +52,7 @@ export class UserConsumer {
   }
 
   @Process(USER_BULL.EMIT_ACTIVITY)
-  async startPage(job: Job<BrowserSessionDto>) {
+  async emitActivity(job: Job<BrowserSessionDto>) {
     if (!job.data || !job.data.email)
       throw new BadRequestException(
         USER_BAD_REQUEST_EXCEPTION.BULL_MISSING_DATA_LOGIN,

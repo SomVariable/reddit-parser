@@ -35,7 +35,8 @@ export enum USER_BULL {
     NAME = 'user',
     LOGIN = 'login-user',
     EMIT_ACTIVITY = 'emit-activity',
-    CSV_ACTION = 'csv-action'
+    CSV_ACTION = 'csv-action',
+    DWARFS_GET_TO_WORK = 'dwarfs-get-to-work'
 }
 
 export const USER_RETURN_EXAMPLE = {"email":"valhodisevil@gmail.com","login":"Temporary-Scholar825","password":"LestTryItPlease123!@#","proxy":"127.0.0.1:80"}

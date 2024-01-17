@@ -49,7 +49,14 @@ export class UserService {
     @InjectQueue(USER_BULL.NAME) private userQueue: Queue,
   ) {}
 
-  async dwarvesLetsGetToWork(dto: DwarvesLetsGetToWorkDto) {
+  async dwarvesLetsGetToWork({emails}: DwarvesLetsGetToWorkDto) {
+    const result = await this.userQueue.add(USER_BULL.DWARFS_GET_TO_WORK, { emails });
+    const { id, data, name } = result;
+
+    return { id, data, name };
+  }
+
+  async queueDwarvesLetsGetToWork(dto: DwarvesLetsGetToWorkDto) {
     if (!dto.emails || dto.emails.length === 0)
       throw new BadRequestException(
         USER_BAD_REQUEST_EXCEPTION.MISSING_USERS_EMAILS,
